@@ -10,9 +10,9 @@ return new class extends Migration
     {
         Schema::create('delivery_requests', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('client_id')->constrained('clients')->onDelete('cascade');
-            $table->foreignId('artisan_id')->constrained('artisans')->onDelete('cascade');
-            $table->foreignId('mediateur_id')->nullable()->constrained('mediateurs')->onDelete('set null');
+            $table->foreignId('client_id')->constrained('clients')->cascadeOnDelete();
+            $table->foreignId('artisan_id')->constrained('artisans')->cascadeOnDelete();
+            $table->foreignId('mediateur_id')->nullable()->constrained('mediateurs');
             $table->text('description');
             $table->enum('status', [
                 'pending',

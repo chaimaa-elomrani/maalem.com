@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('artisans', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('workingArea')->nullable();
             $table->string('service')->nullable();
             $table->json('disponibility')->nullable();

@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('artisan_id')->constrained()->onDelete('cascade');
+            $table->foreignId('artisan_id')->constrained()->cascadeOnDelete();
             $table->string('title');
             $table->text('description')->nullable();
             $table->json('pictures')->nullable(); // Stores array of file paths / URLs
