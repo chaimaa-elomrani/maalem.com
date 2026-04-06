@@ -11,10 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('reviews', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+       Schema::create('reviews', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('client_id')->constrained('users')->cascadeOnDelete();
+    $table->foreignId('artisan_id')->constrained('users')->cascadeOnDelete();
+    $table->text('comment')->nullable();
+    $table->tinyInteger('note')->unsigned()->default(5); 
+    $table->timestamps();
+});
     }
 
     /**
