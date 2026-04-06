@@ -13,8 +13,10 @@ return new class extends Migration
             $table->foreignId('artisan_id')->constrained()->cascadeOnDelete();
             $table->string('title');
             $table->text('description')->nullable();
-            $table->json('pictures')->nullable(); // Stores array of file paths / URLs
             $table->timestamp('datePublication')->useCurrent();
+            $table->json('images')->nullable();         
+            $table->string('category')->nullable();     
+            $table->json('tags')->nullable();  
             $table->timestamps();
         });
     }
