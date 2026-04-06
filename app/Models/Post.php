@@ -26,4 +26,17 @@ class Post extends Model
     {
         return $this->belongsTo(User::class);
     }
+    
+    public function likes(){
+        return $this->morphMany(PostLike::class,'');
+    }
+
+    public function isLikedBy(User $user){
+        return $this->likes()->where('user_id', $user->id)->exists();
+    }
+
+    public function getLikesCountAttribute(){
+        $this->likes()->count();
+    }
+            
 }
