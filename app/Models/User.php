@@ -23,6 +23,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'phone',
+        'city',
+        'role',
     ];
 
     /**
@@ -46,5 +49,20 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function artisan()
+    {
+        return $this->hasOne(Artisan::class);
+    }
+
+    public function client()
+    {
+        return $this->hasOne(Client::class);
+    }
+
+    public function mediateur()
+    {
+        return $this->hasOne(Mediateur::class);
     }
 }
