@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>m3alem — Artisan Feed</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --terracotta: #C4622D;
+      --terracotta-light: #E8855A;
+      --terracotta-dark: #A04E22;
+      --sand: #F5ECD7;
+      --sand-dark: #E8D9BE;
+      --ink: #1C1612;
+      --ink-muted: #6B5B4E;
+      --cream: #FAF6EF;
+      --tile-blue: #2E5E8E;
+      --gold: #C9A84C;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background-color: var(--cream);
+      color: var(--ink);
+    }
+    .display-font { font-family: 'Playfair Display', serif; }
+
+    /* Zellige tile pattern bg for header */
+    .zellige-bg {
+      background-color: var(--ink);
+      background-image:
+        radial-gradient(circle at 25% 25%, rgba(196,98,45,0.15) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(201,168,76,0.1) 0%, transparent 50%);
+    }
+
+    /* Card hover effect */
+    .craft-card {
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+    }
+    .craft-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 60px rgba(28,22,18,0.15);
+    }
+    .craft-card:hover .card-image img {
+      transform: scale(1.06);
+    }
+    .card-image {
+      overflow: hidden;
+      border-radius: 12px 12px 0 0;
+    }
+    .card-image img {
+      transition: transform 0.5s ease;
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Pill tag */
+    .tag {
+      display: inline-block;
+      padding: 3px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+      border: 1px solid var(--sand-dark);
+      color: var(--ink-muted);
+      background: var(--sand);
+    }
+
+    /* Active filter pill */
+    .filter-active {
+      background: var(--terracotta);
+      color: white;
+      border-color: var(--terracotta);
+    }
+
+    /* Search bar */
+    .search-bar:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(196,98,45,0.2);
+    }
+
+    /* Trending hashtag */
+    .trending-item {
+      position: relative;
+      padding-left: 0;
+      transition: padding-left 0.2s ease;
+    }
+    .trending-item:hover { padding-left: 6px; }
+
+    /* Avatar ring */
+    .avatar-ring {
+      box-shadow: 0 0 0 2px white, 0 0 0 4px var(--terracotta);
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--sand); }
+    ::-webkit-scrollbar-thumb { background: var(--terracotta-light); border-radius: 3px; }
+
+    /* Stagger animation */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp 0.5s ease both; }
+    .delay-1 { animation-delay: 0.05s; }
+    .delay-2 { animation-delay: 0.10s; }
+    .delay-3 { animation-delay: 0.15s; }
+    .delay-4 { animation-delay: 0.20s; }
+    .delay-5 { animation-delay: 0.25s; }
+    .delay-6 { animation-delay: 0.30s; }
+
+    /* Sidebar section divider */
+    .section-divider {
+      height: 1px;
+      background: linear-gradient(90deg, var(--sand-dark), transparent);
+    }
+
+    /* Price badge */
+    .price-badge {
+      font-family: 'Playfair Display', serif;
+      font-weight: 600;
+      color: var(--terracotta);
+      font-size: 1.1rem;
+    }
+
+    /* Nav underline */
+    .nav-link-active {
+      position: relative;
+    }
+    .nav-link-active::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0; right: 0;
+      height: 2px;
+      background: var(--terracotta);
+      border-radius: 1px;
+    }
+
+    /* Ornament */
+    .ornament {
+      font-size: 10px;
+      letter-spacing: 4px;
+      color: var(--terracotta);
+      opacity: 0.6;
+    }
+
+    /* Featured artisan hover */
+    .featured-artisan {
+      transition: background 0.2s;
+      border-radius: 10px;
+      padding: 8px 10px;
+      margin: 0 -10px;
+    }
+    .featured-artisan:hover { background: var(--sand); }
+
+    .card-overlay {
+      background: linear-gradient(to top, rgba(28,22,18,0.5) 0%, transparent 50%);
+      position: absolute;
+      inset: 0;
+      border-radius: 12px 12px 0 0;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ NAVBAR ═══ -->
+<header class="zellige-bg sticky top-0 z-50 shadow-lg">
+  <div class="max-w-7xl mx-auto px-6 flex items-center justify-between h-16">
+
+    <!-- Logo -->
+    <a href="#" class="display-font text-2xl font-bold tracking-tight" style="color: var(--terracotta-light);">
+      m3alem
+    </a>
+
+    <!-- Nav Links -->
+    <nav class="hidden md:flex items-center gap-8">
+      <a href="#" class="nav-link-active text-sm font-medium" style="color:white;">Feed</a>
+      <a href="#" class="text-sm font-medium opacity-60 hover:opacity-100 transition-opacity" style="color:white;">Explore</a>
+      <a href="#" class="text-sm font-medium opacity-60 hover:opacity-100 transition-opacity" style="color:white;">Messages</a>
+      <a href="#" class="text-sm font-medium opacity-60 hover:opacity-100 transition-opacity" style="color:white;">Saved</a>
+    </nav>
+
+    <!-- User -->
+    <div class="flex items-center gap-3">
+      <button class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold avatar-ring" style="background:var(--terracotta);color:white;">A</button>
+      <button class="text-xs font-semibold px-4 py-2 rounded-full border transition-all hover:bg-white hover:text-gray-900" style="border-color:rgba(255,255,255,0.3);color:white;">
+        Logout
+      </button>
+    </div>
+  </div>
+</header>
+
+
+<!-- ═══ MAIN LAYOUT ═══ -->
+<div class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-12 gap-6">
+
+  <!-- ── LEFT SIDEBAR ── -->
+  <aside class="col-span-2 hidden lg:block">
+    <div class="sticky top-24 space-y-6">
+
+      <!-- Navigation -->
+      <div class="rounded-2xl p-5" style="background:white;box-shadow:0 2px 20px rgba(28,22,18,0.06);">
+        <p class="text-xs font-semibold uppercase tracking-widest mb-4" style="color:var(--ink-muted);">Navigation</p>
+        <nav class="space-y-1">
+          <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all" style="background:var(--sand);color:var(--terracotta);">
+            <span>🏠</span> Home
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-gray-50" style="color:var(--ink-muted);">
+            <span>🔍</span> Explore
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-gray-50" style="color:var(--ink-muted);">
+            <span>💬</span> Messages
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-gray-50" style="color:var(--ink-muted);">
+            <span>🔖</span> Saved
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-gray-50" style="color:var(--ink-muted);">
+            <span>👤</span> Profile
+          </a>
+        </nav>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="rounded-2xl p-5" style="background:white;box-shadow:0 2px 20px rgba(28,22,18,0.06);">
+        <p class="text-xs font-semibold uppercase tracking-widest mb-4" style="color:var(--ink-muted);">Quick Links</p>
+        <div class="space-y-2">
+          <a href="#" class="block text-sm py-1.5 transition-colors hover:text-terracotta" style="color:var(--ink-muted);">Browse All Artisans</a>
+          <a href="#" class="block text-sm py-1.5 transition-colors hover:text-terracotta" style="color:var(--ink-muted);">How It Works</a>
+          <a href="#" class="block text-sm py-1.5 transition-colors hover:text-terracotta" style="color:var(--ink-muted);">Support</a>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+
+  <!-- ── FEED ── -->
+  <main class="col-span-12 lg:col-span-7 space-y-6">
+
+    <!-- Search + Filters -->
+    <div class="rounded-2xl p-5" style="background:white;box-shadow:0 2px 20px rgba(28,22,18,0.06);">
+      <div class="relative mb-4">
+        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-40" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input
+          type="text"
+          placeholder="Search artisans, crafts, materials…"
+          class="search-bar w-full pl-11 pr-4 py-3 rounded-xl text-sm border transition-all"
+          style="border-color:var(--sand-dark);background:var(--cream);color:var(--ink);"
+        />
+      </div>
+      <div class="flex gap-2 flex-wrap">
+        <button class="filter-active tag">All</button>
+        <button class="tag hover:border-terracotta transition-colors" style="cursor:pointer;">Pottery</button>
+        <button class="tag hover:border-terracotta transition-colors" style="cursor:pointer;">Weaving</button>
+        <button class="tag hover:border-terracotta transition-colors" style="cursor:pointer;">Leather</button>
+        <button class="tag hover:border-terracotta transition-colors" style="cursor:pointer;">Metalwork</button>
+        <button class="tag hover:border-terracotta transition-colors" style="cursor:pointer;">Ceramics</button>
+        <button class="tag hover:border-terracotta transition-colors" style="cursor:pointer;">Woodwork</button>
+      </div>
+    </div>
+
+    <!-- Grid of Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+
+      <!-- Card 1 -->
+      <div class="craft-card fade-up delay-1 rounded-2xl overflow-hidden" style="background:white;box-shadow:0 2px 20px rgba(28,22,18,0.07);">
+        <div class="card-image relative">
+          <img src="https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=600&q=80" alt="Pottery" />
+          <div class="card-overlay"></div>
+        </div>
+        <div class="p-4">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 avatar-ring" style="background:var(--terracotta);color:white;">F</div>
+            <div>
+              <p class="text-sm font-semibold leading-tight" style="color:var(--ink);">Fatima Al-Mansouri</p>
+              <p class="text-xs" style="color:var(--ink-muted);">Traditional Pottery</p>
+            </div>
+          </div>
+          <p class="text-sm leading-relaxed mb-3" style="color:var(--ink-muted);">Hand-thrown ceramic vessels inspired by ancestral geometric patterns.</p>
+          <div class="flex gap-2 mb-4 flex-wrap">
+            <span class="tag">pottery</span>
+            <span class="tag">handmade</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="price-badge">$150</span>
+            <button class="text-xs font-semibold px-4 py-2 rounded-full transition-all hover:opacity-80" style="background:var(--sand);color:var(--terracotta);">View Craft</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="craft-card fade-up delay-2 rounded-2xl overflow-hidden" style="background:white;box-shadow:0 2px 20px rgba(28,22,18,0.07);">
+        <div class="card-image relative">
+          <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=600&q=80" alt="Weaving" />
+          <div class="card-overlay"></div>
+        </div>
+        <div class="p-4">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 avatar-ring" style="background:var(--tile-blue);color:white;">H</div>
+            <div>
+              <p class="text-sm font-semibold leading-tight" style="color:var(--ink);">Hassan El-Khayat</p>
+              <p class="text-xs" style="color:var(--ink-muted);">Textile · Weaver</p>
+            </div>
+          </div>
+          <p class="text-sm leading-relaxed mb-3" style="color:var(--ink-muted);">Exquisite hand-woven rugs using traditional looms passed down through generations.</p>
+          <div class="flex gap-2 mb-4 flex-wrap">
+            <span class="tag">weaving</span>
+            <span class="tag">textiles</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="price-badge">$200</span>
+            <button class="text-xs font-semibold px-4 py-2 rounded-full transition-all hover:opacity-80" style="background:var(--sand);color:var(--terracotta);">View Craft</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="craft-card fade-up delay-3 rounded-2xl overflow-hidden" style="background:white;box-shadow:0 2px 20px rgba(28,22,18,0.07);">
+        <div class="card-image relative">
+          <img src="https://images.unsplash.com/photo-1526045431048-f857369baa09?w=600&q=80" alt="Ceramics" />
+          <div class="card-overlay"></div>
+        </div>
+        <div class="p-4">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 avatar-ring" style="background:var(--gold);color:white;">M</div>
+            <div>
+              <p class="text-sm font-semibold leading-tight" style="color:var(--ink);">Mohammed Bennani</p>
+              <p class="text-xs" style="color:var(--ink-muted);">Ceramic · Painter</p>
+            </div>
+          </div>
+          <p class="text-sm leading-relaxed mb-3" style="color:var(--ink-muted);">Hand-painted ceramic plates featuring intricate geometric Andalusian motifs.</p>
+          <div class="flex gap-2 mb-4 flex-wrap">
+            <span class="tag">ceramics</span>
+            <span class="tag">painting</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="price-badge">$80</span>
+            <button class="text-xs font-semibold px-4 py-2 rounded-full transition-all hover:opacity-80" style="background:var(--sand);color:var(--terracotta);">View Craft</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="craft-card fade-up delay-4 rounded-2xl overflow-hidden" style="background:white;box-shadow:0 2px 20px rgba(28,22,18,0.07);">
+        <div class="card-image relative">
+          <img src="https://images.unsplash.com/photo-1473188588951-666fce8e7c68?w=600&q=80" alt="Leather" />
+          <div class="card-overlay"></div>
+        </div>
+        <div class="p-4">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 avatar-ring" style="background:var(--terracotta-dark);color:white;">A</div>
+            <div>
+              <p class="text-sm font-semibold leading-tight" style="color:var(--ink);">Aisha Moroccan Crafts</p>
+              <p class="text-xs" style="color:var(--ink-muted);">Leather · Artisan</p>
+            </div>
+          </div>
+          <p class="text-sm leading-relaxed mb-3" style="color:var(--ink-muted);">Premium hand-stitched leather goods using traditional Fez tanning methods.</p>
+          <div class="flex gap-2 mb-4 flex-wrap">
+            <span class="tag">leather</span>
+            <span class="tag">accessories</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="price-badge">$120</span>
+            <button class="text-xs font-semibold px-4 py-2 rounded-full transition-all hover:opacity-80" style="background:var(--sand);color:var(--terracotta);">View Craft</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="craft-card fade-up delay-5 rounded-2xl overflow-hidden" style="background:white;box-shadow:0 2px 20px rgba(28,22,18,0.07);">
+        <div class="card-image relative">
+          <img src="https://images.unsplash.com/photo-1601924582970-9238bcb495d9?w=600&q=80" alt="Metalwork" />
+          <div class="card-overlay"></div>
+        </div>
+        <div class="p-4">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 avatar-ring" style="background:var(--ink-muted);color:white;">O</div>
+            <div>
+              <p class="text-sm font-semibold leading-tight" style="color:var(--ink);">Omar Al-Hajji</p>
+              <p class="text-xs" style="color:var(--ink-muted);">Metalwork</p>
+            </div>
+          </div>
+          <p class="text-sm leading-relaxed mb-3" style="color:var(--ink-muted);">Intricate brass and copper lanterns featuring traditional Moroccan filigree.</p>
+          <div class="flex gap-2 mb-4 flex-wrap">
+            <span class="tag">metalwork</span>
+            <span class="tag">brass</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="price-badge">$250</span>
+            <button class="text-xs font-semibold px-4 py-2 rounded-full transition-all hover:opacity-80" style="background:var(--sand);color:var(--terracotta);">View Craft</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 6 -->
+      <div class="craft-card fade-up delay-6 rounded-2xl overflow-hidden" style="background:white;box-shadow:0 2px 20px rgba(28,22,18,0.07);">
+        <div class="card-image relative">
+          <img src="https://images.unsplash.com/photo-1584467541268-b040f83be3fd?w=600&q=80" alt="Contemporary Ceramics" />
+          <div class="card-overlay"></div>
+        </div>
+        <div class="p-4">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 avatar-ring" style="background:var(--tile-blue);color:white;">L</div>
+            <div>
+              <p class="text-sm font-semibold leading-tight" style="color:var(--ink);">Layla Designs</p>
+              <p class="text-xs" style="color:var(--ink-muted);">Ceramic · Artist</p>
+            </div>
+          </div>
+          <p class="text-sm leading-relaxed mb-3" style="color:var(--ink-muted);">Contemporary ceramics blending traditional Rif mountain techniques with modern aesthetics.</p>
+          <div class="flex gap-2 mb-4 flex-wrap">
+            <span class="tag">ceramics</span>
+            <span class="tag">contemporary</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="price-badge">$175</span>
+            <button class="text-xs font-semibold px-4 py-2 rounded-full transition-all hover:opacity-80" style="background:var(--sand);color:var(--terracotta);">View Craft</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Load More -->
+    <div class="text-center pt-2 pb-6">
+      <button class="px-8 py-3 rounded-full text-sm font-semibold border-2 transition-all hover:bg-terracotta hover:text-white hover:border-terracotta" style="border-color:var(--terracotta);color:var(--terracotta);">
+        Discover More Crafts
+      </button>
+    </div>
+
+  </main>
+
+
+  <!-- ── RIGHT SIDEBAR ── -->
+  <aside class="col-span-3 hidden lg:block">
+    <div class="sticky top-24 space-y-5">
+
+      <!-- Trending Categories -->
+      <div class="rounded-2xl p-5" style="background:white;box-shadow:0 2px 20px rgba(28,22,18,0.06);">
+        <div class="flex items-center gap-2 mb-1">
+          <p class="text-sm font-bold display-font" style="color:var(--ink);">Trending Categories</p>
+        </div>
+        <p class="ornament mb-4">✦ ✦ ✦</p>
+        <div class="space-y-3">
+          <div class="trending-item flex items-center justify-between cursor-pointer">
+            <div>
+              <p class="text-sm font-semibold" style="color:var(--terracotta);">#MoroccanPottery</p>
+              <p class="text-xs" style="color:var(--ink-muted);">12.4K posts</p>
+            </div>
+            <span class="text-xs px-2 py-1 rounded-full font-medium" style="background:var(--sand);color:var(--terracotta);">🔥</span>
+          </div>
+          <div class="section-divider"></div>
+          <div class="trending-item flex items-center justify-between cursor-pointer">
+            <div>
+              <p class="text-sm font-semibold" style="color:var(--tile-blue);">#ArtisanCrafts</p>
+              <p class="text-xs" style="color:var(--ink-muted);">9.1K posts</p>
+            </div>
+          </div>
+          <div class="section-divider"></div>
+          <div class="trending-item flex items-center justify-between cursor-pointer">
+            <div>
+              <p class="text-sm font-semibold" style="color:var(--terracotta);">#TraditionalWeaving</p>
+              <p class="text-xs" style="color:var(--ink-muted);">7.8K posts</p>
+            </div>
+          </div>
+          <div class="section-divider"></div>
+          <div class="trending-item flex items-center justify-between cursor-pointer">
+            <div>
+              <p class="text-sm font-semibold" style="color:var(--tile-blue);">#HandmadeBelts</p>
+              <p class="text-xs" style="color:var(--ink-muted);">5.2K posts</p>
+            </div>
+          </div>
+          <div class="section-divider"></div>
+          <div class="trending-item flex items-center justify-between cursor-pointer">
+            <div>
+              <p class="text-sm font-semibold" style="color:var(--terracotta);">#CeramicArt</p>
+              <p class="text-xs" style="color:var(--ink-muted);">4.6K posts</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Featured Artisans -->
+      <div class="rounded-2xl p-5" style="background:white;box-shadow:0 2px 20px rgba(28,22,18,0.06);">
+        <div class="flex items-center gap-2 mb-1">
+          <p class="text-sm font-bold display-font" style="color:var(--ink);">Featured Artisans</p>
+        </div>
+        <p class="ornament mb-4">✦ ✦ ✦</p>
+        <div class="space-y-1">
+
+          <div class="featured-artisan flex items-center gap-3 cursor-pointer">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 avatar-ring" style="background:var(--terracotta);color:white;">F</div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-semibold truncate" style="color:var(--ink);">Fatima Al-Mansouri</p>
+              <p class="text-xs" style="color:var(--ink-muted);">Master Potter · 2.4K followers</p>
+            </div>
+            <button class="text-xs font-semibold px-3 py-1.5 rounded-full transition-all hover:opacity-80 flex-shrink-0" style="background:var(--sand);color:var(--terracotta);">Follow</button>
+          </div>
+
+          <div class="featured-artisan flex items-center gap-3 cursor-pointer">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 avatar-ring" style="background:var(--tile-blue);color:white;">H</div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-semibold truncate" style="color:var(--ink);">Hassan El-Khayat</p>
+              <p class="text-xs" style="color:var(--ink-muted);">Textile Weaver · 1.8K followers</p>
+            </div>
+            <button class="text-xs font-semibold px-3 py-1.5 rounded-full transition-all hover:opacity-80 flex-shrink-0" style="background:var(--sand);color:var(--terracotta);">Follow</button>
+          </div>
+
+          <div class="featured-artisan flex items-center gap-3 cursor-pointer">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 avatar-ring" style="background:var(--gold);color:white;">M</div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-semibold truncate" style="color:var(--ink);">Mohammed Bennani</p>
+              <p class="text-xs" style="color:var(--ink-muted);">Ceramic Artist · 1.5K followers</p>
+            </div>
+            <button class="text-xs font-semibold px-3 py-1.5 rounded-full transition-all hover:opacity-80 flex-shrink-0" style="background:var(--sand);color:var(--terracotta);">Follow</button>
+          </div>
+
+          <div class="featured-artisan flex items-center gap-3 cursor-pointer">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 avatar-ring" style="background:var(--terracotta-dark);color:white;">A</div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-semibold truncate" style="color:var(--ink);">Aisha Moroccan Crafts</p>
+              <p class="text-xs" style="color:var(--ink-muted);">Leather Artisan · 1.2K followers</p>
+            </div>
+            <button class="text-xs font-semibold px-3 py-1.5 rounded-full transition-all hover:opacity-80 flex-shrink-0" style="background:var(--sand);color:var(--terracotta);">Follow</button>
+          </div>
+
+        </div>
+
+        <div class="mt-4 pt-4" style="border-top:1px solid var(--sand-dark);">
+          <a href="#" class="text-xs font-semibold" style="color:var(--terracotta);">View all artisans →</a>
+        </div>
+      </div>
+
+      <!-- Footer note -->
+      <p class="text-center text-xs px-4" style="color:var(--ink-muted);opacity:0.6;">
+        m3alem · Celebrating Moroccan Craft Heritage
+      </p>
+
+    </div>
+  </aside>
+
+</div>
+
+<script>
+  // Filter pill interaction
+  document.querySelectorAll('.tag[style*="cursor"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tag').forEach(t => t.classList.remove('filter-active'));
+      btn.classList.add('filter-active');
+    });
+  });
+  // Also handle "All" pill click
+  document.querySelector('.filter-active').addEventListener('click', function() {
+    document.querySelectorAll('.tag').forEach(t => t.classList.remove('filter-active'));
+    this.classList.add('filter-active');
+  });
+</script>
+
+</body>
+</html>
