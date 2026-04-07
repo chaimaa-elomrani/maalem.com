@@ -176,13 +176,13 @@
   <div class="max-w-7xl mx-auto px-6 flex items-center justify-between h-16">
 
     <!-- Logo -->
-    <a href="#" class="display-font text-2xl font-bold tracking-tight" style="color: var(--terracotta-light);">
+    <a href="{{ url('/') }}" class="display-font text-2xl font-bold tracking-tight" style="color: var(--terracotta-light);">
       m3alem
     </a>
 
     <!-- Nav Links -->
     <nav class="hidden md:flex items-center gap-8">
-      <a href="#" class="nav-link-active text-sm font-medium" style="color:white;">Feed</a>
+      <a href="{{ route('feed') }}" class="nav-link-active text-sm font-medium" style="color:white;">Feed</a>
       <a href="#" class="text-sm font-medium opacity-60 hover:opacity-100 transition-opacity" style="color:white;">Explore</a>
       <a href="#" class="text-sm font-medium opacity-60 hover:opacity-100 transition-opacity" style="color:white;">Messages</a>
       <a href="#" class="text-sm font-medium opacity-60 hover:opacity-100 transition-opacity" style="color:white;">Saved</a>
@@ -190,10 +190,21 @@
 
     <!-- User -->
     <div class="flex items-center gap-3">
-      <button class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold avatar-ring" style="background:var(--terracotta);color:white;">A</button>
-      <button class="text-xs font-semibold px-4 py-2 rounded-full border transition-all hover:bg-white hover:text-gray-900" style="border-color:rgba(255,255,255,0.3);color:white;">
-        Logout
+      @auth
+      <button class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold avatar-ring" style="background:var(--terracotta);color:white;">
+        {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
       </button>
+      <form method="POST" action="{{ route('logout') }}">
+          @csrf
+          <button type="submit" class="text-xs font-semibold px-4 py-2 rounded-full border transition-all hover:bg-white hover:text-gray-900" style="border-color:rgba(255,255,255,0.3);color:white;">
+            Logout
+          </button>
+      </form>
+      @else
+      <a href="{{ route('login') }}" class="text-xs font-semibold px-4 py-2 rounded-full border transition-all hover:bg-white hover:text-gray-900" style="border-color:rgba(255,255,255,0.3);color:white;">
+        Login
+      </a>
+      @endauth
     </div>
   </div>
 </header>
@@ -210,7 +221,7 @@
       <div class="rounded-2xl p-5" style="background:white;box-shadow:0 2px 20px rgba(28,22,18,0.06);">
         <p class="text-xs font-semibold uppercase tracking-widest mb-4" style="color:var(--ink-muted);">Navigation</p>
         <nav class="space-y-1">
-          <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all" style="background:var(--sand);color:var(--terracotta);">
+          <a href="{{ url('/') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all" style="background:var(--sand);color:var(--terracotta);">
             <span>🏠</span> Home
           </a>
           <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-gray-50" style="color:var(--ink-muted);">
@@ -222,7 +233,7 @@
           <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-gray-50" style="color:var(--ink-muted);">
             <span>🔖</span> Saved
           </a>
-          <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-gray-50" style="color:var(--ink-muted);">
+          <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-gray-50" style="color:var(--ink-muted);">
             <span>👤</span> Profile
           </a>
         </nav>
@@ -269,169 +280,59 @@
     <!-- Grid of Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
 
-      <!-- Card 1 -->
+      @forelse($posts as $post)
       <div class="craft-card fade-up delay-1 rounded-2xl overflow-hidden" style="background:white;box-shadow:0 2px 20px rgba(28,22,18,0.07);">
         <div class="card-image relative">
-          <img src="https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=600&q=80" alt="Pottery" />
+          @if($post->images && is_array($post->images) && count($post->images) > 0)
+            <img src="{{ asset('storage/' . $post->images[0]) }}" alt="{{ $post->title }}" />
+          @else
+            <!-- Placeholder image if no image available -->
+            <img src="https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=600&q=80" alt="Placeholder" />
+          @endif
           <div class="card-overlay"></div>
         </div>
         <div class="p-4">
           <div class="flex items-center gap-3 mb-3">
-            <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 avatar-ring" style="background:var(--terracotta);color:white;">F</div>
+            <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 avatar-ring" style="background:var(--terracotta);color:white;">
+              {{ $post->user ? strtoupper(substr($post->user->name, 0, 1)) : 'A' }}
+            </div>
             <div>
-              <p class="text-sm font-semibold leading-tight" style="color:var(--ink);">Fatima Al-Mansouri</p>
-              <p class="text-xs" style="color:var(--ink-muted);">Traditional Pottery</p>
+              <p class="text-sm font-semibold leading-tight" style="color:var(--ink);">{{ $post->user ? $post->user->name : 'Unknown Artisan' }}</p>
+              <p class="text-xs" style="color:var(--ink-muted);">{{ $post->category ?? 'Category' }}</p>
             </div>
           </div>
-          <p class="text-sm leading-relaxed mb-3" style="color:var(--ink-muted);">Hand-thrown ceramic vessels inspired by ancestral geometric patterns.</p>
+          <p class="text-sm font-bold mb-1" style="color:var(--ink);">{{ $post->title }}</p>
+          <p class="text-sm leading-relaxed mb-3" style="color:var(--ink-muted);">{{ Str::limit($post->description, 80) }}</p>
           <div class="flex gap-2 mb-4 flex-wrap">
-            <span class="tag">pottery</span>
-            <span class="tag">handmade</span>
+            @if($post->tags && is_array($post->tags))
+                @foreach($post->tags as $tag)
+                    <span class="tag">{{ $tag }}</span>
+                @endforeach
+            @elseif($post->tags && is_string($post->tags))
+                @foreach(json_decode($post->tags, true) ?? explode(',', $post->tags) as $tag)
+                    <span class="tag">{{ trim($tag) }}</span>
+                @endforeach
+            @endif
           </div>
           <div class="flex items-center justify-between">
-            <span class="price-badge">$150</span>
+            <span class="price-badge">
+                <!-- Using a default price since price isn't in Post model, or omit it -->
+            </span>
             <button class="text-xs font-semibold px-4 py-2 rounded-full transition-all hover:opacity-80" style="background:var(--sand);color:var(--terracotta);">View Craft</button>
           </div>
         </div>
       </div>
-
-      <!-- Card 2 -->
-      <div class="craft-card fade-up delay-2 rounded-2xl overflow-hidden" style="background:white;box-shadow:0 2px 20px rgba(28,22,18,0.07);">
-        <div class="card-image relative">
-          <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=600&q=80" alt="Weaving" />
-          <div class="card-overlay"></div>
-        </div>
-        <div class="p-4">
-          <div class="flex items-center gap-3 mb-3">
-            <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 avatar-ring" style="background:var(--tile-blue);color:white;">H</div>
-            <div>
-              <p class="text-sm font-semibold leading-tight" style="color:var(--ink);">Hassan El-Khayat</p>
-              <p class="text-xs" style="color:var(--ink-muted);">Textile · Weaver</p>
-            </div>
-          </div>
-          <p class="text-sm leading-relaxed mb-3" style="color:var(--ink-muted);">Exquisite hand-woven rugs using traditional looms passed down through generations.</p>
-          <div class="flex gap-2 mb-4 flex-wrap">
-            <span class="tag">weaving</span>
-            <span class="tag">textiles</span>
-          </div>
-          <div class="flex items-center justify-between">
-            <span class="price-badge">$200</span>
-            <button class="text-xs font-semibold px-4 py-2 rounded-full transition-all hover:opacity-80" style="background:var(--sand);color:var(--terracotta);">View Craft</button>
-          </div>
-        </div>
+      @empty
+      <div class="col-span-full text-center py-12">
+          <p style="color:var(--ink-muted);">No crafts have been posted yet.</p>
       </div>
-
-      <!-- Card 3 -->
-      <div class="craft-card fade-up delay-3 rounded-2xl overflow-hidden" style="background:white;box-shadow:0 2px 20px rgba(28,22,18,0.07);">
-        <div class="card-image relative">
-          <img src="https://images.unsplash.com/photo-1526045431048-f857369baa09?w=600&q=80" alt="Ceramics" />
-          <div class="card-overlay"></div>
-        </div>
-        <div class="p-4">
-          <div class="flex items-center gap-3 mb-3">
-            <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 avatar-ring" style="background:var(--gold);color:white;">M</div>
-            <div>
-              <p class="text-sm font-semibold leading-tight" style="color:var(--ink);">Mohammed Bennani</p>
-              <p class="text-xs" style="color:var(--ink-muted);">Ceramic · Painter</p>
-            </div>
-          </div>
-          <p class="text-sm leading-relaxed mb-3" style="color:var(--ink-muted);">Hand-painted ceramic plates featuring intricate geometric Andalusian motifs.</p>
-          <div class="flex gap-2 mb-4 flex-wrap">
-            <span class="tag">ceramics</span>
-            <span class="tag">painting</span>
-          </div>
-          <div class="flex items-center justify-between">
-            <span class="price-badge">$80</span>
-            <button class="text-xs font-semibold px-4 py-2 rounded-full transition-all hover:opacity-80" style="background:var(--sand);color:var(--terracotta);">View Craft</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Card 4 -->
-      <div class="craft-card fade-up delay-4 rounded-2xl overflow-hidden" style="background:white;box-shadow:0 2px 20px rgba(28,22,18,0.07);">
-        <div class="card-image relative">
-          <img src="https://images.unsplash.com/photo-1473188588951-666fce8e7c68?w=600&q=80" alt="Leather" />
-          <div class="card-overlay"></div>
-        </div>
-        <div class="p-4">
-          <div class="flex items-center gap-3 mb-3">
-            <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 avatar-ring" style="background:var(--terracotta-dark);color:white;">A</div>
-            <div>
-              <p class="text-sm font-semibold leading-tight" style="color:var(--ink);">Aisha Moroccan Crafts</p>
-              <p class="text-xs" style="color:var(--ink-muted);">Leather · Artisan</p>
-            </div>
-          </div>
-          <p class="text-sm leading-relaxed mb-3" style="color:var(--ink-muted);">Premium hand-stitched leather goods using traditional Fez tanning methods.</p>
-          <div class="flex gap-2 mb-4 flex-wrap">
-            <span class="tag">leather</span>
-            <span class="tag">accessories</span>
-          </div>
-          <div class="flex items-center justify-between">
-            <span class="price-badge">$120</span>
-            <button class="text-xs font-semibold px-4 py-2 rounded-full transition-all hover:opacity-80" style="background:var(--sand);color:var(--terracotta);">View Craft</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Card 5 -->
-      <div class="craft-card fade-up delay-5 rounded-2xl overflow-hidden" style="background:white;box-shadow:0 2px 20px rgba(28,22,18,0.07);">
-        <div class="card-image relative">
-          <img src="https://images.unsplash.com/photo-1601924582970-9238bcb495d9?w=600&q=80" alt="Metalwork" />
-          <div class="card-overlay"></div>
-        </div>
-        <div class="p-4">
-          <div class="flex items-center gap-3 mb-3">
-            <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 avatar-ring" style="background:var(--ink-muted);color:white;">O</div>
-            <div>
-              <p class="text-sm font-semibold leading-tight" style="color:var(--ink);">Omar Al-Hajji</p>
-              <p class="text-xs" style="color:var(--ink-muted);">Metalwork</p>
-            </div>
-          </div>
-          <p class="text-sm leading-relaxed mb-3" style="color:var(--ink-muted);">Intricate brass and copper lanterns featuring traditional Moroccan filigree.</p>
-          <div class="flex gap-2 mb-4 flex-wrap">
-            <span class="tag">metalwork</span>
-            <span class="tag">brass</span>
-          </div>
-          <div class="flex items-center justify-between">
-            <span class="price-badge">$250</span>
-            <button class="text-xs font-semibold px-4 py-2 rounded-full transition-all hover:opacity-80" style="background:var(--sand);color:var(--terracotta);">View Craft</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Card 6 -->
-      <div class="craft-card fade-up delay-6 rounded-2xl overflow-hidden" style="background:white;box-shadow:0 2px 20px rgba(28,22,18,0.07);">
-        <div class="card-image relative">
-          <img src="https://images.unsplash.com/photo-1584467541268-b040f83be3fd?w=600&q=80" alt="Contemporary Ceramics" />
-          <div class="card-overlay"></div>
-        </div>
-        <div class="p-4">
-          <div class="flex items-center gap-3 mb-3">
-            <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 avatar-ring" style="background:var(--tile-blue);color:white;">L</div>
-            <div>
-              <p class="text-sm font-semibold leading-tight" style="color:var(--ink);">Layla Designs</p>
-              <p class="text-xs" style="color:var(--ink-muted);">Ceramic · Artist</p>
-            </div>
-          </div>
-          <p class="text-sm leading-relaxed mb-3" style="color:var(--ink-muted);">Contemporary ceramics blending traditional Rif mountain techniques with modern aesthetics.</p>
-          <div class="flex gap-2 mb-4 flex-wrap">
-            <span class="tag">ceramics</span>
-            <span class="tag">contemporary</span>
-          </div>
-          <div class="flex items-center justify-between">
-            <span class="price-badge">$175</span>
-            <button class="text-xs font-semibold px-4 py-2 rounded-full transition-all hover:opacity-80" style="background:var(--sand);color:var(--terracotta);">View Craft</button>
-          </div>
-        </div>
-      </div>
+      @endforelse
 
     </div>
 
-    <!-- Load More -->
-    <div class="text-center pt-2 pb-6">
-      <button class="px-8 py-3 rounded-full text-sm font-semibold border-2 transition-all hover:bg-terracotta hover:text-white hover:border-terracotta" style="border-color:var(--terracotta);color:var(--terracotta);">
-        Discover More Crafts
-      </button>
+    <!-- Load More / Pagination -->
+    <div class="pt-4 pb-6 mt-6">
+      {{ $posts->links() }}
     </div>
 
   </main>
@@ -469,20 +370,6 @@
               <p class="text-xs" style="color:var(--ink-muted);">7.8K posts</p>
             </div>
           </div>
-          <div class="section-divider"></div>
-          <div class="trending-item flex items-center justify-between cursor-pointer">
-            <div>
-              <p class="text-sm font-semibold" style="color:var(--tile-blue);">#HandmadeBelts</p>
-              <p class="text-xs" style="color:var(--ink-muted);">5.2K posts</p>
-            </div>
-          </div>
-          <div class="section-divider"></div>
-          <div class="trending-item flex items-center justify-between cursor-pointer">
-            <div>
-              <p class="text-sm font-semibold" style="color:var(--terracotta);">#CeramicArt</p>
-              <p class="text-xs" style="color:var(--ink-muted);">4.6K posts</p>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -508,24 +395,6 @@
             <div class="flex-1 min-w-0">
               <p class="text-sm font-semibold truncate" style="color:var(--ink);">Hassan El-Khayat</p>
               <p class="text-xs" style="color:var(--ink-muted);">Textile Weaver · 1.8K followers</p>
-            </div>
-            <button class="text-xs font-semibold px-3 py-1.5 rounded-full transition-all hover:opacity-80 flex-shrink-0" style="background:var(--sand);color:var(--terracotta);">Follow</button>
-          </div>
-
-          <div class="featured-artisan flex items-center gap-3 cursor-pointer">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 avatar-ring" style="background:var(--gold);color:white;">M</div>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-semibold truncate" style="color:var(--ink);">Mohammed Bennani</p>
-              <p class="text-xs" style="color:var(--ink-muted);">Ceramic Artist · 1.5K followers</p>
-            </div>
-            <button class="text-xs font-semibold px-3 py-1.5 rounded-full transition-all hover:opacity-80 flex-shrink-0" style="background:var(--sand);color:var(--terracotta);">Follow</button>
-          </div>
-
-          <div class="featured-artisan flex items-center gap-3 cursor-pointer">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 avatar-ring" style="background:var(--terracotta-dark);color:white;">A</div>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-semibold truncate" style="color:var(--ink);">Aisha Moroccan Crafts</p>
-              <p class="text-xs" style="color:var(--ink-muted);">Leather Artisan · 1.2K followers</p>
             </div>
             <button class="text-xs font-semibold px-3 py-1.5 rounded-full transition-all hover:opacity-80 flex-shrink-0" style="background:var(--sand);color:var(--terracotta);">Follow</button>
           </div>
