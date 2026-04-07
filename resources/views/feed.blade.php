@@ -294,10 +294,10 @@
         <div class="p-4">
           <div class="flex items-center gap-3 mb-3">
             <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 avatar-ring" style="background:var(--terracotta);color:white;">
-              {{ $post->user ? strtoupper(substr($post->user->name, 0, 1)) : 'A' }}
+              {{ ($post->artisan && $post->artisan->user) ? strtoupper(substr($post->artisan->user->name, 0, 1)) : 'A' }}
             </div>
             <div>
-              <p class="text-sm font-semibold leading-tight" style="color:var(--ink);">{{ $post->user ? $post->user->name : 'Unknown Artisan' }}</p>
+              <p class="text-sm font-semibold leading-tight" style="color:var(--ink);">{{ ($post->artisan && $post->artisan->user) ? $post->artisan->user->name : 'Unknown Artisan' }}</p>
               <p class="text-xs" style="color:var(--ink-muted);">{{ $post->category ?? 'Category' }}</p>
             </div>
           </div>

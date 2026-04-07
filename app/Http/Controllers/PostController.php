@@ -8,7 +8,7 @@ use App\Models\Post;
 class PostController extends Controller
 {
     public function index(){
-        $posts = Post::with('user')->latest()->paginate(12);
+        $posts = Post::with('artisan.user')->latest()->paginate(12);
         return view('feed', compact('posts'));
     }
 

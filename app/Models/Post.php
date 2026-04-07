@@ -20,12 +20,15 @@ class Post extends Model
 
     protected $casts = [
         'images' => 'array',
+        'tags' => 'array',
     ];
 
-    public function user()
+    public function artisan()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Artisan::class);
     }
+
+
     
     public function likes(){
         return $this->morphMany(PostLike::class,'');
