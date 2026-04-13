@@ -171,7 +171,6 @@
 </head>
 <body>
 
-<!-- ═══ NAVBAR ═══ -->
 <header class="zellige-bg sticky top-0 z-50 shadow-lg">
   <div class="max-w-7xl mx-auto px-6 flex items-center justify-between h-16">
 
@@ -210,10 +209,8 @@
 </header>
 
 
-<!-- ═══ MAIN LAYOUT ═══ -->
 <div class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-12 gap-6">
 
-  <!-- ── LEFT SIDEBAR ── -->
   <aside class="col-span-2 hidden lg:block">
     <div class="sticky top-24 space-y-6">
 
@@ -252,7 +249,6 @@
   </aside>
 
 
-  <!-- ── FEED ── -->
   <main class="col-span-12 lg:col-span-7 space-y-6">
 
     <!-- Search + Filters -->
@@ -283,11 +279,39 @@
       @forelse($posts as $post)
       <div class="craft-card fade-up delay-1 rounded-2xl overflow-hidden" style="background:white;box-shadow:0 2px 20px rgba(28,22,18,0.07);">
         <div class="card-image relative">
-          @if($post->images && is_array($post->images) && count($post->images) > 0)
-            <img src="{{ asset('storage/' . $post->images[0]) }}" alt="{{ $post->title }}" />
+          @php
+              $defaultImages = [
+                  'Artisan Woman Weaving Traditional Moroccan Baskets.jpeg',
+                  'Broderie de Fez.jpeg',
+                  'L’Artisanat Marocain _ Un Héritage de Savoir-Faire Authentique.jpeg',
+                  'Pottery Painting, Morocco.jpeg',
+                  'Tapis Marocaine.jpeg',
+                  'artisanat au maroc - Page 7.jpeg',
+                  'image 26.png', 'image 34.png', 'image 35.png', 'image 36.png', 'image 37.png', 
+                  'image 38.png', 'image 39.png', 'image 40.png', 'image 41.png', 'image 42.png',
+                  'Кожевенные красильни Марракеша.jpeg',
+                  'Разноцветье Марокко рядом.jpeg'
+              ];
+              $imageIndex = (int) $post->id % count($defaultImages);
+              $placeholderImage = $defaultImages[$imageIndex];
+          @endphp
+          @php
+              $firstImage = null;
+              if ($post->images && is_array($post->images) && count($post->images) > 0) {
+                  $firstImage = $post->images[0];
+              } elseif ($post->images && is_string($post->images) && ($decoded = json_decode($post->images, true)) && count($decoded) > 0) {
+                  $firstImage = $decoded[0];
+              }
+              $isSeederPlaceholder = $firstImage && str_contains($firstImage, 'unsplash.com');
+          @endphp
+          @if($firstImage && !$isSeederPlaceholder)
+            @if(str_starts_with($firstImage, 'http'))
+                <img src="{{ $firstImage }}" alt="{{ $post->title }}" />
+            @else
+                <img src="{{ asset('storage/' . $firstImage) }}" alt="{{ $post->title }}" />
+            @endif
           @else
-            <!-- Placeholder image if no image available -->
-            <img src="https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=600&q=80" alt="Placeholder" />
+            <img src="{{ asset('images/' . $placeholderImage) }}" alt="{{ $post->title }}" />
           @endif
           <div class="card-overlay"></div>
         </div>
@@ -338,7 +362,6 @@
   </main>
 
 
-  <!-- ── RIGHT SIDEBAR ── -->
   <aside class="col-span-3 hidden lg:block">
     <div class="sticky top-24 space-y-5">
 

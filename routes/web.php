@@ -3,6 +3,9 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\ArtisanProfileController;
+
+Route::get('/artisan/{id}', [ArtisanProfileController::class, 'show'])->name('artisan.profile');
 
 Route::get('/', function () {
     return view('welcome');

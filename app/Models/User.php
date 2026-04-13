@@ -67,7 +67,7 @@ class User extends Authenticatable
     }
 
     public function posts(){
-        return $this->hasMany(Post::class);
+        return $this->hasManyThrough(Post::class, Artisan::class);
     }
 
     public function reviews(){
