@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ArtisanProfileController;
 
-Route::get('/artisan/{id}', [ArtisanProfileController::class, 'show'])->name('artisan.profile');
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -22,8 +22,15 @@ Route::middleware('auth')->group(function () {
 
     Route::post('posts/create', [PostController::class, 'store'])->name('posts.store');
     Route::get('posts/create', [PostController::class, 'create'])->name('posts.create');
+
+    Route::get('/artisan/setup', [ArtisanProfileController::class, 'setupForm'])->name('artisan.setup');
+    Route::post('/artisan/setup', [ArtisanProfileController::class, 'setupStore'])->name('artisan.setup.store');
+    Route::get('/artisan-dashboard', [ArtisanProfileController::class, 'dashboard'])->name('artisan.dashboard');
 });
+
+Route::get('/artisan/{id}', [ArtisanProfileController::class, 'show'])->name('artisan.profile');
 
 Route::get('/feed', [PostController::class, 'index'])->name('feed');
 
 require __DIR__.'/auth.php';
+

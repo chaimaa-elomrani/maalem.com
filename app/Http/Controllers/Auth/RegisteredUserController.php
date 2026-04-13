@@ -51,7 +51,6 @@ class RegisteredUserController extends Controller
             'role' => $request->role,
         ]);
 
-        // Create role-specific record
         if ($request->role === 'client') {
             Client::create(['user_id' => $user->id]);
         } elseif ($request->role === 'artisan') {
@@ -63,6 +62,10 @@ class RegisteredUserController extends Controller
         event(new Registered($user));
 
         Auth::login($user);
+
+        if ($request->role === 'artisan') {
+            return redirect()->route('artisan.setup');
+        }
 
         return redirect(route('dashboard', absolute: false));
     }
