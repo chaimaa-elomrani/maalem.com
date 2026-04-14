@@ -53,9 +53,31 @@
     .card-image img {
       transition: transform 0.5s ease;
       width: 100%;
-      height: 200px;
+      height: 450px;
       object-fit: cover;
       display: block;
+      flex-shrink: 0;
+      scroll-snap-align: start;
+    }
+
+    /* Multi-image scroller */
+    .image-scroller {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE/Edge */
+      border-radius: 12px 12px 0 0;
+    }
+    .image-scroller::-webkit-scrollbar {
+      display: none; /* Chrome/Safari */
+    }
+    .scroller-image {
+      width: 100%;
+      height: 450px;
+      object-fit: cover;
+      flex-shrink: 0;
+      scroll-snap-align: start;
     }
 
     /* Pill tag */
@@ -172,7 +194,7 @@
 <body>
 
 <header class="zellige-bg sticky top-0 z-50 shadow-lg">
-  <div class="max-w-7xl mx-auto px-6 flex items-center justify-between h-16">
+  <div class="max-w-[1440px] mx-auto px-6 flex items-center justify-between h-16">
 
     <!-- Logo -->
     <a href="{{ url('/') }}" class="display-font text-2xl font-bold tracking-tight" style="color: var(--terracotta-light);">
@@ -209,7 +231,7 @@
 </header>
 
 
-<div class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-12 gap-6">
+<div class="max-w-[1440px] mx-auto px-6 py-8 grid grid-cols-12 gap-6">
 
   <aside class="col-span-2 hidden lg:block">
     <div class="sticky top-24 space-y-6">
@@ -273,8 +295,8 @@
       </div>
     </div>
 
-    <!-- Grid of Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+    <!-- Single Column Feed -->
+    <div class="max-w-xl mx-auto space-y-8">
 
       @forelse($posts as $post)
       <div class="craft-card fade-up delay-1 rounded-2xl overflow-hidden" style="background:white;box-shadow:0 2px 20px rgba(28,22,18,0.07);">
@@ -294,24 +316,41 @@
               ];
               $imageIndex = (int) $post->id % count($defaultImages);
               $placeholderImage = $defaultImages[$imageIndex];
-          @endphp
-          @php
-              $firstImage = null;
-              if ($post->images && is_array($post->images) && count($post->images) > 0) {
-                  $firstImage = $post->images[0];
-              } elseif ($post->images && is_string($post->images) && ($decoded = json_decode($post->images, true)) && count($decoded) > 0) {
-                  $firstImage = $decoded[0];
+              
+              // Get all images
+              $allImages = [];
+              if ($post->images && is_array($post->images)) {
+                  $allImages = $post->images;
+              } elseif ($post->images && is_string($post->images)) {
+                  $allImages = json_decode($post->images, true) ?? [];
               }
-              $isSeederPlaceholder = $firstImage && str_contains($firstImage, 'unsplash.com');
           @endphp
-          @if($firstImage && !$isSeederPlaceholder)
-            @if(str_starts_with($firstImage, 'http'))
-                <img src="{{ $firstImage }}" alt="{{ $post->title }}" />
+
+          <div class="image-scroller">
+            @if(count($allImages) > 0)
+              @foreach($allImages as $img)
+                @php $isSeederPlaceholder = $img && str_contains($img, 'unsplash.com'); @endphp
+                @if(!$isSeederPlaceholder)
+                  @php
+                    $imgPath = 'storage/' . $img;
+                    if (!str_starts_with($img, 'http') && file_exists(public_path('images/' . $img))) {
+                        $imgPath = 'images/' . $img;
+                    }
+                  @endphp
+                  <img src="{{ str_starts_with($img, 'http') ? $img : asset($imgPath) }}" class="scroller-image" alt="{{ $post->title }}" />
+                @else
+                  <img src="{{ asset('images/' . $placeholderImage) }}" class="scroller-image" alt="{{ $post->title }}" />
+                @endif
+              @endforeach
             @else
-                <img src="{{ asset('storage/' . $firstImage) }}" alt="{{ $post->title }}" />
+              <img src="{{ asset('images/' . $placeholderImage) }}" class="scroller-image" alt="{{ $post->title }}" />
             @endif
-          @else
-            <img src="{{ asset('images/' . $placeholderImage) }}" alt="{{ $post->title }}" />
+          </div>
+          
+          @if(count($allImages) > 1)
+            <div class="absolute bottom-4 right-4 bg-black/50 text-white text-[10px] px-2 py-1 rounded-full backdrop-blur-sm pointer-events-none">
+              1 / {{ count($allImages) }}
+            </div>
           @endif
           <div class="card-overlay"></div>
         </div>
@@ -408,18 +447,16 @@
             <div class="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 avatar-ring" style="background:var(--terracotta);color:white;">F</div>
             <div class="flex-1 min-w-0">
               <p class="text-sm font-semibold truncate" style="color:var(--ink);">Fatima Al-Mansouri</p>
-              <p class="text-xs" style="color:var(--ink-muted);">Master Potter · 2.4K followers</p>
+              <p class="text-xs" style="color:var(--ink-muted);">Master Potter</p>
             </div>
-            <button class="text-xs font-semibold px-3 py-1.5 rounded-full transition-all hover:opacity-80 flex-shrink-0" style="background:var(--sand);color:var(--terracotta);">Follow</button>
           </div>
 
           <div class="featured-artisan flex items-center gap-3 cursor-pointer">
             <div class="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 avatar-ring" style="background:var(--tile-blue);color:white;">H</div>
             <div class="flex-1 min-w-0">
               <p class="text-sm font-semibold truncate" style="color:var(--ink);">Hassan El-Khayat</p>
-              <p class="text-xs" style="color:var(--ink-muted);">Textile Weaver · 1.8K followers</p>
+              <p class="text-xs" style="color:var(--ink-muted);">Textile Weaver</p>
             </div>
-            <button class="text-xs font-semibold px-3 py-1.5 rounded-full transition-all hover:opacity-80 flex-shrink-0" style="background:var(--sand);color:var(--terracotta);">Follow</button>
           </div>
 
         </div>
@@ -451,6 +488,17 @@
   document.querySelector('.filter-active').addEventListener('click', function() {
     document.querySelectorAll('.tag').forEach(t => t.classList.remove('filter-active'));
     this.classList.add('filter-active');
+  });
+  // Image scroller counter
+  document.querySelectorAll('.image-scroller').forEach(scroller => {
+    scroller.addEventListener('scroll', () => {
+      const index = Math.round(scroller.scrollLeft / scroller.clientWidth) + 1;
+      const counter = scroller.parentElement.querySelector('.absolute.bottom-4.right-4');
+      if (counter) {
+        const total = scroller.querySelectorAll('.scroller-image').length;
+        counter.innerText = `${index} / ${total}`;
+      }
+    });
   });
 </script>
 

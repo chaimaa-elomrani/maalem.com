@@ -116,7 +116,6 @@
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
           <button class="btn-primary">Book Consultation</button>
-          <button class="btn-ghost">Follow</button>
           <button class="btn-ghost">Message</button>
         </div>
       </div>
@@ -126,10 +125,7 @@
           <div class="stat-lbl">Response Time</div>
           <div style="font-size:14px;font-weight:600;margin-top:2px;">2 – 4 hours</div>
         </div>
-        <div>
-          <div class="stat-lbl">Followers</div>
-          <div style="font-size:14px;font-weight:600;margin-top:2px;">{{ rand(100, 5000) }}</div>
-        </div>
+
         <div>
           <div class="stat-lbl">Member Since</div>
           <div style="font-size:14px;font-weight:600;margin-top:2px;">{{ $artisanUser->created_at->format('F Y') }}</div>
