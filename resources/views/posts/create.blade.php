@@ -87,13 +87,11 @@
 
       <div class="bg-white p-8 rounded-2xl shadow-sm border border-sand-dark space-y-6">
         
-        <!-- Title -->
         <div>
           <label class="label">Craft Title</label>
           <input type="text" name="title" class="form-input" placeholder="e.g. Traditional Hand-Woven Berber Rug" required value="{{ old('title') }}">
         </div>
 
-        <!-- Category -->
         <div>
           <label class="label">Category</label>
           <select name="category" class="form-input" required>
@@ -107,13 +105,11 @@
           </select>
         </div>
 
-        <!-- Description -->
         <div>
           <label class="label">Product Story / Description</label>
           <textarea name="description" rows="5" class="form-input" placeholder="Tell the story of this piece, the materials used, and the technique..." required>{{ old('description') }}</textarea>
         </div>
 
-        <!-- Images -->
         <div>
           <label class="label">Upload Images (Max 5MB per file)</label>
           <div class="relative group">
@@ -124,7 +120,6 @@
           </div>
         </div>
 
-        <!-- Tags -->
         <div>
           <label class="label">Tags (Keywords)</label>
           <input type="text" name="tags" class="form-input" placeholder="e.g. wool, handmade, traditional, atlas-mountains" value="{{ old('tags') }}">

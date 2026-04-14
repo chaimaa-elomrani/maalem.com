@@ -2,60 +2,37 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use Illuminate\Http\Request;
+use App\Services\ArtisanService;
 use Illuminate\Support\Facades\Auth;
 
 class ArtisanProfileController extends Controller
 {
+    protected $artisanService;
+
+    public function __construct(ArtisanService $artisanService)
+    {
+        $this->artisanService = $artisanService;
+    }
+
     public function index(Request $request)
     {
-        $query = User::where('role', 'artisan')
-            ->with(['artisan', 'reviewsReceived'])
-            ->withCount('posts')
-            ->has('artisan');
-
-        if ($search = $request->input('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'ilike', "%{$search}%")
-                  ->orWhere('city', 'ilike', "%{$search}%")
-                  ->orWhereHas('artisan', fn($q) => $q->where('service', 'ilike', "%{$search}%")
-                      ->orWhere('workingArea', 'ilike', "%{$search}%"));
-            });
-        }
-
-        if ($city = $request->input('city')) {
-            $query->where('city', $city);
-        }
-
-        $artisans = $query->paginate(12)->withQueryString();
-
-        $cities = User::where('role', 'artisan')
-            ->whereNotNull('city')
-            ->distinct()
-            ->pluck('city');
+        $filters = $request->only(['search', 'city']);
+        $artisans = $this->artisanService->getArtisans($filters);
+        $cities = $this->artisanService->getCities();
 
         return view('artisans.index', compact('artisans', 'cities'));
     }
 
     public function show($id)
     {
-        $user = User::with(['artisan', 'posts', 'reviewsReceived.user'])->findOrFail($id);
+        $profile = $this->artisanService->getArtisanProfile($id);
 
-        if ($user->role !== 'artisan') {
+        if (!$profile) {
             abort(404, 'Artisan not found');
         }
 
-        $averageRating = $user->reviewsReceived->avg('rating') ?? 0;
-        $reviewsCount  = $user->reviewsReceived->count();
-        $ratingDistribution = $user->reviewsReceived->groupBy('rating')->map(fn($items) => $items->count());
-
-        return view('artisan.profile', [
-            'artisanUser'        => $user,
-            'averageRating'      => round($averageRating, 1),
-            'reviewsCount'       => $reviewsCount,
-            'ratingDistribution' => $ratingDistribution,
-        ]);
+        return view('artisan.profile', $profile);
     }
 
     public function setupForm()
@@ -71,13 +48,7 @@ class ArtisanProfileController extends Controller
 
     public function setupStore(Request $request)
     {
-        $user = Auth::user();
-
-        if ($user->role !== 'artisan') {
-            abort(403);
-        }
-
-        $request->validate([
+        $data = $request->validate([
             'service'         => ['required', 'string', 'max:255'],
             'workingArea'     => ['required', 'string', 'max:255'],
             'experience'      => ['required', 'string'],
@@ -86,22 +57,7 @@ class ArtisanProfileController extends Controller
             'certifications'  => ['nullable', 'string'],
         ]);
 
-        $certifications = array_filter(
-            array_map('trim', explode(',', $request->certifications ?? ''))
-        );
-
-        $user->artisan()->updateOrCreate(
-            ['user_id' => $user->id],
-            [
-                'service'         => $request->service,
-                'workingArea'     => $request->workingArea,
-                'experience'      => $request->experience,
-                'workshopAdresse' => $request->workshopAdresse,
-                'disponibility'   => $request->disponibility ?? [],
-                'certifications'  => array_values($certifications),
-                'status'          => 'active',
-            ]
-        );
+        $this->artisanService->setupProfile(Auth::user(), $data);
 
         return redirect()->route('artisan.dashboard');
     }

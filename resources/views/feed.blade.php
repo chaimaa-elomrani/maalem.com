@@ -202,7 +202,6 @@
       m3alem
     </a>
 
-    <!-- Nav Links -->
     <nav class="hidden md:flex items-center gap-8">
       <a href="{{ route('feed') }}" class="nav-link-active text-sm font-medium" style="color:white;">Feed</a>
       <a href="{{ route('artisans.index') }}" class="text-sm font-medium opacity-60 hover:opacity-100 transition-opacity" style="color:white;">Explore</a>
@@ -210,7 +209,6 @@
       <a href="#" class="text-sm font-medium opacity-60 hover:opacity-100 transition-opacity" style="color:white;">Saved</a>
     </nav>
 
-    <!-- User -->
     <div class="flex items-center gap-3">
       @auth
       <button class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold avatar-ring" style="background:var(--terracotta);color:white;">
@@ -237,7 +235,6 @@
   <aside class="col-span-2 hidden lg:block">
     <div class="sticky top-24 space-y-6">
 
-      <!-- Navigation -->
       <div class="rounded-2xl p-5" style="background:white;box-shadow:0 2px 20px rgba(28,22,18,0.06);">
         <p class="text-xs font-semibold uppercase tracking-widest mb-4" style="color:var(--ink-muted);">Navigation</p>
         <nav class="space-y-1">
@@ -259,8 +256,9 @@
         </nav>
       </div>
 
-      <!-- Quick Links -->
-      <div class="rounded-2xl p-5" style="background:white;box-shadow:0 2px 20px rgba(28,22,18,0.06);">
+      </div>
+
+    <div class="rounded-2xl p-5" style="background:white;box-shadow:0 2px 20px rgba(28,22,18,0.06);">
         <p class="text-xs font-semibold uppercase tracking-widest mb-4" style="color:var(--ink-muted);">Quick Links</p>
         <div class="space-y-2">
           <a href="#" class="block text-sm py-1.5 transition-colors hover:text-terracotta" style="color:var(--ink-muted);">Browse All Artisans</a>
@@ -274,7 +272,6 @@
 
   <main class="col-span-12 lg:col-span-7 space-y-6">
 
-    <!-- Search + Filters -->
     <div class="rounded-2xl p-5" style="background:white;box-shadow:0 2px 20px rgba(28,22,18,0.06);">
       <div class="relative mb-4">
         <input
@@ -295,7 +292,6 @@
       </div>
     </div>
 
-    <!-- Single Column Feed -->
     <div class="max-w-xl mx-auto space-y-8">
 
       @forelse($posts as $post)
@@ -355,8 +351,7 @@
           <div class="card-overlay"></div>
         </div>
 
-        <!-- Instagram-style Interaction Bar -->
-        <div class="interaction-bar">
+  <div class="interaction-bar">
           <div class="flex items-center gap-1.5 cursor-pointer group">
             <svg class="interaction-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
@@ -501,19 +496,18 @@
 </div>
 
 <script>
-  // Filter pill interaction
   document.querySelectorAll('.tag[style*="cursor"]').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.tag').forEach(t => t.classList.remove('filter-active'));
       btn.classList.add('filter-active');
     });
   });
-  // Also handle "All" pill click
+  
   document.querySelector('.filter-active').addEventListener('click', function() {
     document.querySelectorAll('.tag').forEach(t => t.classList.remove('filter-active'));
     this.classList.add('filter-active');
   });
-  // Image scroller counter
+
   document.querySelectorAll('.image-scroller').forEach(scroller => {
     scroller.addEventListener('scroll', () => {
       const index = Math.round(scroller.scrollLeft / scroller.clientWidth) + 1;

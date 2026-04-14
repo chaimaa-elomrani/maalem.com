@@ -62,7 +62,7 @@
 </head>
 <body>
 
-<!-- NAVBAR -->
+
 <header class="navbar">
   <div style="max-width:960px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;">
     <span style="font-size:16px;font-weight:700;color:var(--brand);">m3alem</span>
@@ -75,12 +75,12 @@
   </div>
 </header>
 
-<!-- HERO -->
+
 <div class="hero"></div>
 
 <div style="max-width:960px;margin:0 auto;padding:0 16px;">
 
-  <!-- PROFILE CARD -->
+
   <div class="card p-5 md:p-6" style="margin-top:-48px;margin-bottom:16px;">
     <div style="display:flex;flex-wrap:wrap;gap:20px;">
 

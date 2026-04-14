@@ -83,7 +83,7 @@
   </div>
 </header>
 
-<!-- Hero -->
+
 <div class="hero-bar">
   <div style="max-width:1100px;margin:0 auto;text-align:center;">
     <h1 style="font-size:28px;font-weight:700;color:#fff;margin-bottom:8px;">Browse Moroccan Artisans</h1>
@@ -107,7 +107,7 @@
 
 <div style="max-width:1100px;margin:0 auto;padding:32px 20px 60px;">
 
-  <!-- Results count -->
+
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:8px;">
     <p style="font-size:14px;color:var(--muted);">
       Showing <strong style="color:var(--ink);">{{ $artisans->total() }}</strong> artisan{{ $artisans->total() !== 1 ? 's' : '' }}
@@ -119,7 +119,7 @@
     @endif
   </div>
 
-  <!-- Grid -->
+
   @if($artisans->isEmpty())
     <div style="text-align:center;padding:60px 20px;color:var(--muted);">
       <div style="font-size:40px;margin-bottom:12px;">🔍</div>
@@ -131,12 +131,12 @@
       @foreach($artisans as $i => $artisan)
       <div class="acard fade-up" style="animation-delay:{{ $i * 0.04 }}s;">
 
-        <!-- Card top colour strip -->
+
         <div style="height:6px;background:linear-gradient(90deg,#C4622D,#9E4E24);"></div>
 
         <div style="padding:20px;flex:1;display:flex;flex-direction:column;gap:14px;">
 
-          <!-- Avatar + name -->
+
           <div style="display:flex;align-items:flex-start;gap:14px;">
             <div class="avatar-initials">{{ strtoupper(substr($artisan->name, 0, 1)) }}</div>
             <div style="flex:1;min-width:0;">
@@ -159,14 +159,14 @@
             </div>
           </div>
 
-          <!-- Bio -->
+
           @if($artisan->artisan?->experience)
           <p style="font-size:13px;color:var(--ink-2);line-height:1.6;">
             {{ Str::limit($artisan->artisan->experience, 100) }}
           </p>
           @endif
 
-          <!-- Skills -->
+
           @php
             $certs = $artisan->artisan?->certifications;
             if (is_string($certs)) {
@@ -184,7 +184,7 @@
           </div>
           @endif
 
-          <!-- Stats row -->
+
           <div style="display:flex;gap:16px;padding:10px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
             <div>
               <div style="font-size:16px;font-weight:700;">{{ $artisan->posts_count ?? '—' }}</div>
@@ -200,7 +200,7 @@
             </div>
           </div>
 
-          <!-- CTA -->
+
           <a href="{{ route('artisan.profile', $artisan->id) }}" class="btn-primary" style="text-align:center;width:100%;">
             View Profile
           </a>
@@ -210,7 +210,7 @@
       @endforeach
     </div>
 
-    <!-- Pagination -->
+
     <div style="margin-top:36px;">
       {{ $artisans->links() }}
     </div>

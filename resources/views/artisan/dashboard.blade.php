@@ -52,13 +52,13 @@
 </head>
 <body>
 
-<!-- SIDEBAR -->
+
 <aside class="sidebar">
   <div style="padding: 20px 16px 12px;">
     <span style="font-size:16px;font-weight:700;color:var(--brand);">m3alem</span>
   </div>
 
-  <!-- Artisan Avatar / Info -->
+
   <div style="padding: 12px 16px 16px; border-bottom: 1px solid var(--border);">
     <div style="width:44px;height:44px;border-radius:8px;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;margin-bottom:8px;">
       {{ strtoupper(substr($artisanUser->name, 0, 1)) }}
@@ -68,7 +68,7 @@
     <span class="badge badge-green" style="margin-top:5px;">Active</span>
   </div>
 
-  <!-- Nav -->
+
   <nav style="padding: 12px 0; flex: 1;">
     <a href="{{ route('artisan.dashboard') }}" class="nav-item active">
       Overview
@@ -90,7 +90,7 @@
     </a>
   </nav>
 
-  <!-- Logout -->
+
   <div style="padding: 12px 8px; border-top: 1px solid var(--border);">
     <form method="POST" action="{{ route('logout') }}">
       @csrf
@@ -101,10 +101,10 @@
   </div>
 </aside>
 
-<!-- MAIN CONTENT -->
+
 <main class="main-area">
 
-  <!-- Header -->
+
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px;">
     <div>
       <h1 style="font-size:20px;font-weight:700;">Welcome back, {{ $artisanUser->name }}</h1>
@@ -115,7 +115,7 @@
     </a>
   </div>
 
-  <!-- Stats Row -->
+
   @php
     $avgRating    = round($artisanUser->reviewsReceived->avg('rating') ?? 0, 1);
     $reviewsCount = $artisanUser->reviewsReceived->count();
@@ -142,10 +142,10 @@
 
   <div style="display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start;" id="dashboard-grid">
 
-    <!-- LEFT COLUMN -->
+
     <div style="display:flex;flex-direction:column;gap:20px;">
 
-      <!-- Portfolio -->
+
       <div class="card" style="padding:20px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
           <h2 style="font-size:15px;font-weight:600;">My Listings</h2>
@@ -216,10 +216,10 @@
 
     </div>
 
-    <!-- RIGHT COLUMN -->
+
     <div style="display:flex;flex-direction:column;gap:16px;">
 
-      <!-- Profile Completeness -->
+
       <div class="card" style="padding:18px;">
         <h3 style="font-size:14px;font-weight:600;margin-bottom:14px;">Profile Details</h3>
         <div style="display:flex;flex-direction:column;gap:10px;">
@@ -257,7 +257,7 @@
         </a>
       </div>
 
-      <!-- Rating Breakdown -->
+
       @if($reviewsCount > 0)
       @php
         $dist = $artisanUser->reviewsReceived->groupBy('rating')->map->count();
@@ -283,7 +283,7 @@
       </div>
       @endif
 
-      <!-- Skills -->
+
       @if($artisanUser->artisan && !empty($artisanUser->artisan->certifications))
       <div class="card" style="padding:18px;">
         <h3 style="font-size:14px;font-weight:600;margin-bottom:12px;">Skills</h3>
