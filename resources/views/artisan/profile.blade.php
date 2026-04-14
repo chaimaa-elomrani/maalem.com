@@ -68,6 +68,7 @@
     <span style="font-size:16px;font-weight:700;color:var(--brand);">m3alem</span>
     <nav style="display:flex;gap:24px;">
       <a href="{{ route('feed') }}" style="font-size:13px;font-weight:500;color:var(--muted);text-decoration:none;">Feed</a>
+      <a href="{{ route('artisans.index') }}" style="font-size:13px;font-weight:500;color:var(--muted);text-decoration:none;">Artisans</a>
       <a href="#" style="font-size:13px;font-weight:600;color:var(--ink);text-decoration:none;">Profile</a>
       <a href="{{ route('dashboard') }}" style="font-size:13px;font-weight:500;color:var(--muted);text-decoration:none;">Account</a>
     </nav>
@@ -102,14 +103,16 @@
           {{ $artisanUser->artisan->experience ?? 'Passionate Moroccan artisan crafting authentic pieces.' }}
         </p>
         <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">
-          @if($artisanUser->artisan && !empty($artisanUser->artisan->certifications))
-             @php
-                $certifications = is_array($artisanUser->artisan->certifications) ? $artisanUser->artisan->certifications : json_decode($artisanUser->artisan->certifications, true) ?? [];
-             @endphp
-             @foreach($certifications as $tag)
-                <span class="tag">{{ trim($tag, "\[\]\"'") }}</span>
-             @endforeach
-          @endif
+          @php
+             $certs = $artisanUser->artisan->certifications ?? [];
+             if (is_string($certs)) {
+                $decoded = json_decode($certs, true);
+                $certs = is_array($decoded) ? $decoded : [$certs];
+             }
+          @endphp
+          @foreach($certs as $tag)
+             <span class="tag">{{ trim($tag, "\[\]\"'") }}</span>
+          @endforeach
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
           <button class="btn-primary">Book Consultation</button>
@@ -316,13 +319,17 @@
                <div style="font-size:13px;margin-top:2px;">
                   @php
                      $hours = $artisanUser->artisan->disponibility ?? 'Mon – Sat, 9am – 5pm';
-                     if(is_array($hours)) {
+                     if (is_string($hours)) {
+                        $decoded = json_decode($hours, true);
+                        if (is_array($decoded)) {
+                           echo implode(', ', $decoded);
+                        } else {
+                           echo trim($hours, "[]\"'");
+                        }
+                     } elseif (is_array($hours)) {
                         echo implode(', ', $hours);
-                     } elseif(is_string($hours) && json_decode($hours, true)) {
-                        $arr = json_decode($hours, true);
-                        echo implode(', ', $arr);
                      } else {
-                        echo trim($hours, "[]\"'");
+                        echo $hours;
                      }
                   @endphp
                </div>

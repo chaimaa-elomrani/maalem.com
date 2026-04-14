@@ -182,7 +182,7 @@
     <!-- Nav Links -->
     <nav class="hidden md:flex items-center gap-8">
       <a href="{{ route('feed') }}" class="nav-link-active text-sm font-medium" style="color:white;">Feed</a>
-      <a href="#" class="text-sm font-medium opacity-60 hover:opacity-100 transition-opacity" style="color:white;">Explore</a>
+      <a href="{{ route('artisans.index') }}" class="text-sm font-medium opacity-60 hover:opacity-100 transition-opacity" style="color:white;">Explore</a>
       <a href="#" class="text-sm font-medium opacity-60 hover:opacity-100 transition-opacity" style="color:white;">Messages</a>
       <a href="#" class="text-sm font-medium opacity-60 hover:opacity-100 transition-opacity" style="color:white;">Saved</a>
     </nav>

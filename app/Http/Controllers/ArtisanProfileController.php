@@ -8,6 +8,36 @@ use Illuminate\Support\Facades\Auth;
 
 class ArtisanProfileController extends Controller
 {
+    public function index(Request $request)
+    {
+        $query = User::where('role', 'artisan')
+            ->with(['artisan', 'reviewsReceived'])
+            ->withCount('posts')
+            ->has('artisan');
+
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'ilike', "%{$search}%")
+                  ->orWhere('city', 'ilike', "%{$search}%")
+                  ->orWhereHas('artisan', fn($q) => $q->where('service', 'ilike', "%{$search}%")
+                      ->orWhere('workingArea', 'ilike', "%{$search}%"));
+            });
+        }
+
+        if ($city = $request->input('city')) {
+            $query->where('city', $city);
+        }
+
+        $artisans = $query->paginate(12)->withQueryString();
+
+        $cities = User::where('role', 'artisan')
+            ->whereNotNull('city')
+            ->distinct()
+            ->pluck('city');
+
+        return view('artisans.index', compact('artisans', 'cities'));
+    }
+
     public function show($id)
     {
         $user = User::with(['artisan', 'posts', 'reviewsReceived.user'])->findOrFail($id);

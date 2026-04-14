@@ -28,6 +28,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/artisan-dashboard', [ArtisanProfileController::class, 'dashboard'])->name('artisan.dashboard');
 });
 
+Route::get('/artisans', [ArtisanProfileController::class, 'index'])->name('artisans.index');
 Route::get('/artisan/{id}', [ArtisanProfileController::class, 'show'])->name('artisan.profile');
 
 Route::get('/feed', [PostController::class, 'index'])->name('feed');

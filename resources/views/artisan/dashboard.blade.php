@@ -244,6 +244,10 @@
             <div style="font-size:13px;margin-top:2px;">
               @php
                 $days = $artisanUser->artisan->disponibility ?? [];
+                if (is_string($days)) {
+                  $decoded = json_decode($days, true);
+                  $days = is_array($decoded) ? $decoded : [$days];
+                }
                 echo is_array($days) ? implode(', ', $days) : $days;
               @endphp
             </div>
@@ -285,7 +289,14 @@
       <div class="card" style="padding:18px;">
         <h3 style="font-size:14px;font-weight:600;margin-bottom:12px;">Skills</h3>
         <div style="display:flex;flex-wrap:wrap;gap:6px;">
-          @foreach($artisanUser->artisan->certifications as $skill)
+          @php
+            $skills = $artisanUser->artisan->certifications ?? [];
+            if (is_string($skills)) {
+                $decoded = json_decode($skills, true);
+                $skills = is_array($decoded) ? $decoded : [$skills];
+            }
+          @endphp
+          @foreach($skills as $skill)
           <span style="display:inline-block;background:var(--brand-pale);color:var(--brand-dark);font-size:11px;font-weight:500;padding:3px 9px;border-radius:4px;">{{ $skill }}</span>
           @endforeach
         </div>
