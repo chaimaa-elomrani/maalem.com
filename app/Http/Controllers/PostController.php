@@ -17,24 +17,44 @@ class PostController extends Controller
         return view('posts.create'); 
     }
 
-    public function store(Request $request){
+    public function store(Request $request)
+    {
         $request->validate([
-            'title'=> 'required|string|max:255',
-            'description'=> 'required|string',
-            'images'=> 'required|array',
-            'images.*'=> 'image|mimes:jpeg,png,jpg,gif|max:2048',
-            'category'=> 'required|string',
-            'tags'=> 'required|array',
-            'tags.*'=> 'string',
-        ]);
-        $post = Post::create([
-            'title'=> $request->title,
-            'description'=> $request->description,
-            'images'=> $request->images,
-            'category'=> $request->category,
-            'tags'=> $request->tags,
+            'title'       => 'required|string|max:255',
+            'description' => 'required|string',
+            'images'      => 'required|array|min:1',
+            'images.*'    => 'image|mimes:jpeg,png,jpg,gif|max:5120',
+            'category'    => 'required|string',
+            'tags'        => 'nullable|string',
         ]);
 
-        return redirect()->route('feed')->with('success','');
+        $user = auth()->user();
+        if (!$user->artisan) {
+            return redirect()->back()->withErrors(['artisan' => 'User profile not found.']);
+        }
+
+        $imagePaths = [];
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $file) {
+                $path = $file->store('posts', 'public');
+                $imagePaths[] = $path;
+            }
+        }
+
+        $tagsArray = [];
+        if ($request->tags) {
+            $tagsArray = array_map('trim', explode(',', $request->tags));
+        }
+
+        Post::create([
+            'artisan_id'  => $user->artisan->id,
+            'title'       => $request->title,
+            'description' => $request->description,
+            'images'      => $imagePaths,
+            'category'    => $request->category,
+            'tags'        => $tagsArray,
+        ]);
+
+        return redirect()->route('artisan.dashboard')->with('success', 'Your craft has been listed successfully!');
     }
 }

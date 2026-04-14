@@ -71,22 +71,22 @@
   <!-- Nav -->
   <nav style="padding: 12px 0; flex: 1;">
     <a href="{{ route('artisan.dashboard') }}" class="nav-item active">
-      <span>🏠</span> Overview
+      Overview
     </a>
     <a href="{{ route('artisan.profile', $artisanUser->id) }}" class="nav-item" target="_blank">
-      <span>👤</span> Public Profile
+      Public Profile
     </a>
     <a href="{{ route('posts.create') }}" class="nav-item">
-      <span>➕</span> New Listing
+      New Listing
     </a>
     <a href="#" class="nav-item">
-      <span>⭐</span> Reviews
+      Reviews
     </a>
     <a href="#" class="nav-item">
-      <span>💬</span> Messages
+      Messages
     </a>
     <a href="{{ route('artisan.setup') }}" class="nav-item">
-      <span>⚙️</span> Edit Profile
+      Edit Profile
     </a>
   </nav>
 
@@ -95,7 +95,7 @@
     <form method="POST" action="{{ route('logout') }}">
       @csrf
       <button type="submit" class="nav-item" style="width:100%;border:none;background:none;text-align:left;">
-        <span>🚪</span> Logout
+        Logout
       </button>
     </form>
   </div>
@@ -107,7 +107,7 @@
   <!-- Header -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px;">
     <div>
-      <h1 style="font-size:20px;font-weight:700;">Welcome back, {{ $artisanUser->name }} 👋</h1>
+      <h1 style="font-size:20px;font-weight:700;">Welcome back, {{ $artisanUser->name }}</h1>
       <p style="font-size:13px;color:var(--muted);margin-top:2px;">Here's how your profile is performing.</p>
     </div>
     <a href="{{ route('posts.create') }}">
@@ -156,7 +156,6 @@
 
         @if($artisanUser->posts->isEmpty())
           <div style="text-align:center;padding:32px 0;color:var(--muted);">
-            <div style="font-size:32px;margin-bottom:8px;">📷</div>
             <p style="font-size:13px;">You haven't added any listings yet.</p>
             <a href="{{ route('posts.create') }}">
               <button class="btn-primary" style="margin-top:12px;width:auto;padding:8px 20px;">Create First Listing</button>
@@ -204,7 +203,7 @@
                 <p style="font-size:11px;color:var(--muted);">{{ $rev->created_at?->diffForHumans() }}</p>
               </div>
             </div>
-            <span style="font-size:12px;color:#F59E0B;">{!! str_repeat('★', $rev->rating) !!}{!! str_repeat('<span style="color:#D1D5DB;">★</span>', 5 - $rev->rating) !!}</span>
+            <span style="font-size:12px;font-weight:600;color:var(--brand);">{{ $rev->rating }}/5</span>
           </div>
           <p style="font-size:13px;color:var(--ink-2);line-height:1.6;">{{ Str::limit($rev->comment, 120) }}</p>
         </div>
@@ -268,7 +267,7 @@
         <h3 style="font-size:14px;font-weight:600;margin-bottom:14px;">Rating Breakdown</h3>
         <div style="text-align:center;margin-bottom:14px;">
           <div style="font-size:32px;font-weight:700;">{{ $avgRating }}</div>
-          <div style="color:#F59E0B;font-size:14px;margin:3px 0;">★★★★★</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">Rating Score</div>
           <div style="font-size:11px;color:var(--muted);">{{ $reviewsCount }} reviews</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:6px;">

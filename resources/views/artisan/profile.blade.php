@@ -224,7 +224,7 @@
         </div>
 
         <!-- Reviews -->
-        <div>
+        <div>t
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
             <h2 style="font-size:14px;font-weight:600;">Customer Reviews</h2>
             <span style="font-size:12px;color:var(--muted);">{{ $reviewsCount }} reviews</span>

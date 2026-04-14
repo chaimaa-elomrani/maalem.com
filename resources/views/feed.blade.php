@@ -27,15 +27,10 @@
     }
     .display-font { font-family: 'Playfair Display', serif; }
 
-    /* Zellige tile pattern bg for header */
-    .zellige-bg {
+    .header-bg {
       background-color: var(--ink);
-      background-image:
-        radial-gradient(circle at 25% 25%, rgba(196,98,45,0.15) 0%, transparent 50%),
-        radial-gradient(circle at 75% 75%, rgba(201,168,76,0.1) 0%, transparent 50%);
     }
 
-    /* Card hover effect */
     .craft-card {
       transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
     }
@@ -60,13 +55,12 @@
       scroll-snap-align: start;
     }
 
-    /* Multi-image scroller */
     .image-scroller {
       display: flex;
       overflow-x: auto;
       scroll-snap-type: x mandatory;
-      scrollbar-width: none; /* Firefox */
-      -ms-overflow-style: none; /* IE/Edge */
+      scrollbar-width: none;
+      -ms-overflow-style: none;
       border-radius: 12px 12px 0 0;
     }
     .image-scroller::-webkit-scrollbar {
@@ -80,7 +74,6 @@
       scroll-snap-align: start;
     }
 
-    /* Pill tag */
     .tag {
       display: inline-block;
       padding: 3px 12px;
@@ -93,7 +86,6 @@
       background: var(--sand);
     }
 
-    /* Active filter pill */
     .filter-active {
       background: var(--terracotta);
       color: white;
@@ -106,7 +98,6 @@
       box-shadow: 0 0 0 3px rgba(196,98,45,0.2);
     }
 
-    /* Trending hashtag */
     .trending-item {
       position: relative;
       padding-left: 0;
@@ -137,13 +128,11 @@
     .delay-5 { animation-delay: 0.25s; }
     .delay-6 { animation-delay: 0.30s; }
 
-    /* Sidebar section divider */
     .section-divider {
       height: 1px;
       background: linear-gradient(90deg, var(--sand-dark), transparent);
     }
 
-    /* Price badge */
     .price-badge {
       font-family: 'Playfair Display', serif;
       font-weight: 600;
@@ -165,14 +154,6 @@
       border-radius: 1px;
     }
 
-    /* Ornament */
-    .ornament {
-      font-size: 10px;
-      letter-spacing: 4px;
-      color: var(--terracotta);
-      opacity: 0.6;
-    }
-
     /* Featured artisan hover */
     .featured-artisan {
       transition: background 0.2s;
@@ -189,11 +170,31 @@
       border-radius: 12px 12px 0 0;
       pointer-events: none;
     }
+    /* Interaction bar */
+    .interaction-bar {
+      display: flex;
+      gap: 16px;
+      padding: 12px 16px 8px;
+    }
+    .interaction-icon {
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      color: var(--ink);
+      transition: transform 0.1s ease, color 0.2s ease;
+    }
+    .interaction-icon:hover {
+      transform: scale(1.1);
+      color: var(--terracotta);
+    }
+    .interaction-icon:active {
+      transform: scale(0.9);
+    }
   </style>
 </head>
 <body>
 
-<header class="zellige-bg sticky top-0 z-50 shadow-lg">
+<header class="header-bg sticky top-0 z-50 shadow-lg">
   <div class="max-w-[1440px] mx-auto px-6 flex items-center justify-between h-16">
 
     <!-- Logo -->
@@ -241,19 +242,19 @@
         <p class="text-xs font-semibold uppercase tracking-widest mb-4" style="color:var(--ink-muted);">Navigation</p>
         <nav class="space-y-1">
           <a href="{{ url('/') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all" style="background:var(--sand);color:var(--terracotta);">
-            <span>🏠</span> Home
+            Home
+          </a>
+          <a href="{{ route('artisans.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-gray-50" style="color:var(--ink-muted);">
+            Explore
           </a>
           <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-gray-50" style="color:var(--ink-muted);">
-            <span>🔍</span> Explore
+            Messages
           </a>
           <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-gray-50" style="color:var(--ink-muted);">
-            <span>💬</span> Messages
-          </a>
-          <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-gray-50" style="color:var(--ink-muted);">
-            <span>🔖</span> Saved
+            Saved
           </a>
           <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-gray-50" style="color:var(--ink-muted);">
-            <span>👤</span> Profile
+            Profile
           </a>
         </nav>
       </div>
@@ -276,11 +277,10 @@
     <!-- Search + Filters -->
     <div class="rounded-2xl p-5" style="background:white;box-shadow:0 2px 20px rgba(28,22,18,0.06);">
       <div class="relative mb-4">
-        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-40" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         <input
           type="text"
-          placeholder="Search artisans, crafts, materials…"
-          class="search-bar w-full pl-11 pr-4 py-3 rounded-xl text-sm border transition-all"
+          placeholder="Search for artisans or crafts..."
+          class="search-bar w-full px-4 py-3 rounded-xl text-sm border transition-all"
           style="border-color:var(--sand-dark);background:var(--cream);color:var(--ink);"
         />
       </div>
@@ -354,7 +354,31 @@
           @endif
           <div class="card-overlay"></div>
         </div>
-        <div class="p-4">
+
+        <!-- Instagram-style Interaction Bar -->
+        <div class="interaction-bar">
+          <div class="flex items-center gap-1.5 cursor-pointer group">
+            <svg class="interaction-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+            </svg>
+            <span class="text-xs font-bold" style="color:var(--ink);">{{ $post->likes_count ?? rand(10, 200) }}</span>
+          </div>
+
+          <div class="flex items-center gap-1.5 cursor-pointer group">
+            <svg class="interaction-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+            </svg>
+            <span class="text-xs font-bold" style="color:var(--ink);">{{ rand(5, 40) }}</span>
+          </div>
+
+          <div class="ml-auto">
+            <svg class="interaction-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+            </svg>
+          </div>
+        </div>
+
+        <div class="p-4 pt-0">
           <div class="flex items-center gap-3 mb-3">
             <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 avatar-ring" style="background:var(--terracotta);color:white;">
               {{ ($post->artisan && $post->artisan->user) ? strtoupper(substr($post->artisan->user->name, 0, 1)) : 'A' }}
@@ -409,14 +433,14 @@
         <div class="flex items-center gap-2 mb-1">
           <p class="text-sm font-bold display-font" style="color:var(--ink);">Trending Categories</p>
         </div>
-        <p class="ornament mb-4">✦ ✦ ✦</p>
+
         <div class="space-y-3">
           <div class="trending-item flex items-center justify-between cursor-pointer">
             <div>
               <p class="text-sm font-semibold" style="color:var(--terracotta);">#MoroccanPottery</p>
               <p class="text-xs" style="color:var(--ink-muted);">12.4K posts</p>
             </div>
-            <span class="text-xs px-2 py-1 rounded-full font-medium" style="background:var(--sand);color:var(--terracotta);">🔥</span>
+            <span class="text-xs px-2 py-1 rounded-full font-medium" style="background:var(--sand);color:var(--terracotta);">Trending</span>
           </div>
           <div class="section-divider"></div>
           <div class="trending-item flex items-center justify-between cursor-pointer">
@@ -440,7 +464,7 @@
         <div class="flex items-center gap-2 mb-1">
           <p class="text-sm font-bold display-font" style="color:var(--ink);">Featured Artisans</p>
         </div>
-        <p class="ornament mb-4">✦ ✦ ✦</p>
+
         <div class="space-y-1">
 
           <div class="featured-artisan flex items-center gap-3 cursor-pointer">

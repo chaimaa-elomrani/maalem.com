@@ -115,7 +115,7 @@
       <label for="service">Your Service Title *</label>
       <input id="service" name="service" type="text" class="form-field {{ $errors->has('service') ? 'error' : '' }}"
         placeholder="e.g. Ceramic Master, Master Weaver, Leather Artist"
-        value="{{ old('service') }}" required />
+        value="{{ old('service', $user->artisan->service ?? '') }}" required />
       <p class="hint">This is your main headline visible on your profile.</p>
     </div>
 
@@ -124,7 +124,7 @@
       <label for="workingArea">Craft / Working Area *</label>
       <input id="workingArea" name="workingArea" type="text" class="form-field {{ $errors->has('workingArea') ? 'error' : '' }}"
         placeholder="e.g. Pottery, Zellige Tiles, Leather Craft, Weaving"
-        value="{{ old('workingArea') }}" required />
+        value="{{ old('workingArea', $user->artisan->workingArea ?? '') }}" required />
     </div>
 
     <!-- Experience / Bio -->
@@ -132,7 +132,7 @@
       <label for="experience">About You & Your Experience *</label>
       <textarea id="experience" name="experience" rows="4" class="form-field {{ $errors->has('experience') ? 'error' : '' }}"
         placeholder="Tell clients about yourself, your background, and what makes your craft unique…"
-        required>{{ old('experience') }}</textarea>
+        required>{{ old('experience', $user->artisan->experience ?? '') }}</textarea>
       <p class="hint">Aim for 2–4 sentences; this appears directly on your public profile.</p>
     </div>
 
@@ -141,7 +141,7 @@
       <label for="workshopAdresse">Workshop / Studio Location *</label>
       <input id="workshopAdresse" name="workshopAdresse" type="text" class="form-field {{ $errors->has('workshopAdresse') ? 'error' : '' }}"
         placeholder="e.g. Fès el-Bali Medina, Marrakech Medina"
-        value="{{ old('workshopAdresse') }}" required />
+        value="{{ old('workshopAdresse', $user->artisan->workshopAdresse ?? '') }}" required />
     </div>
 
     <!-- Availability -->
@@ -151,7 +151,7 @@
         @foreach(['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] as $day)
         <label class="day-pill">
           <input type="checkbox" name="disponibility[]" value="{{ $day }}"
-            {{ in_array($day, old('disponibility', [])) ? 'checked' : '' }}/>
+            {{ in_array($day, old('disponibility', $user->artisan->disponibility ?? [])) ? 'checked' : '' }}/>
           {{ $day }}
         </label>
         @endforeach
@@ -167,7 +167,7 @@
         <input id="certifications-input" type="text" placeholder="Type a skill and press Enter…"
           style="border:none;outline:none;font-size:13px;color:var(--ink);flex:1;min-width:120px;font-family:'Inter',sans-serif;" />
       </div>
-      <input type="hidden" name="certifications" id="certifications-hidden" value="{{ old('certifications') }}" />
+      <input type="hidden" name="certifications" id="certifications-hidden" value="{{ old('certifications', is_array($user->artisan->certifications ?? null) ? implode(', ', $user->artisan->certifications) : ($user->artisan->certifications ?? '')) }}" />
       <p class="hint">e.g. Traditional Pottery, Zellige, Hand-painting, Custom Commission</p>
     </div>
 
