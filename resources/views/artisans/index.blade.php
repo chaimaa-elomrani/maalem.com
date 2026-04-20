@@ -4,226 +4,300 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>m3alem — Browse Artisans</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --brand:      #C4622D;
-      --brand-dark: #A34E22;
-      --brand-pale: #F7EDE6;
-      --ink:        #111827;
-      --ink-2:      #374151;
-      --muted:      #6B7280;
-      --border:     #E5E7EB;
-      --bg:         #F9FAFB;
+      --brand:       #B85C2A;
+      --brand-hover: #9A4B22;
+      --brand-light: #F2E4DA;
+      --brand-mid:   #D97B4F;
+      --ink:         #18181B;
+      --ink-2:       #3F3F46;
+      --muted:       #71717A;
+      --muted-2:     #A1A1AA;
+      --border:      #E4E4E7;
+      --bg:          #F4F4F5;
+      --surface:     #FFFFFF;
+      --star:        #D97706;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--ink); }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--ink); font-size: 14px; line-height: 1.5; min-height: 100vh; }
 
-    .navbar { background: #fff; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50; }
+    /* NAV */
+    nav { background: var(--ink); height: 54px; display: flex; align-items: center; position: sticky; top: 0; z-index: 100; }
+    .nav-inner { width: 100%; max-width: 1280px; margin: 0 auto; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { font-size: 17px; font-weight: 700; color: var(--brand-mid); letter-spacing: -.3px; }
+    .nav-links { display: flex; align-items: center; gap: 28px; }
+    .nav-links a { font-size: 13px; font-weight: 500; color: rgba(255,255,255,.5); text-decoration: none; transition: color .15s; }
+    .nav-links a:hover, .nav-links a.active { color: #fff; }
+    .nav-av { width: 30px; height: 30px; border-radius: 50%; background: var(--brand); color: #fff; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; }
 
-    .search-field {
-      width: 100%; padding: 10px 16px 10px 40px; border: 1px solid var(--border); border-radius: 8px;
-      font-size: 14px; outline: none; transition: border-color .15s, box-shadow .15s; background: #fff;
-    }
-    .search-field:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(196,98,45,.1); }
+    /* PAGE HEADER */
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); }
+    .page-header-inner { max-width: 1280px; margin: 0 auto; padding: 22px 32px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .page-header h1 { font-size: 18px; font-weight: 700; color: var(--ink); margin-bottom: 2px; }
+    .page-header p { font-size: 12px; color: var(--muted); }
+    .search-wrap { position: relative; width: 280px; }
+    .search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--muted-2); pointer-events: none; }
+    .search-input { width: 100%; padding: 8px 12px 8px 32px; border: 1px solid var(--border); border-radius: 6px; font-family: 'Inter', sans-serif; font-size: 13px; color: var(--ink); background: var(--bg); outline: none; transition: border-color .15s; }
+    .search-input:focus { border-color: var(--brand); background: #fff; }
 
-    .select-field {
-      padding: 9px 14px; border: 1px solid var(--border); border-radius: 8px;
-      font-size: 13px; color: var(--ink); background: #fff; outline: none; cursor: pointer;
-    }
-    .select-field:focus { border-color: var(--brand); }
+    /* CATEGORY TABS */
+    .cat-bar { background: var(--surface); border-bottom: 1px solid var(--border); }
+    .cat-bar-inner { max-width: 1280px; margin: 0 auto; padding: 0 32px; display: flex; overflow-x: auto; }
+    .cat-bar-inner::-webkit-scrollbar { display: none; }
+    .cat-tab { padding: 13px 16px; font-size: 13px; font-weight: 500; color: var(--muted); border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; transition: color .15s, border-color .15s; display: flex; align-items: center; gap: 6px; }
+    .cat-tab:hover { color: var(--ink-2); }
+    .cat-tab.active { color: var(--brand); border-bottom-color: var(--brand); }
+    .cat-count { font-size: 11px; background: var(--bg); border: 1px solid var(--border); color: var(--muted); padding: 1px 6px; border-radius: 999px; }
+    .cat-tab.active .cat-count { background: var(--brand-light); color: var(--brand); border-color: transparent; }
 
-    .acard {
-      background: #fff; border: 1px solid var(--border); border-radius: 12px;
-      overflow: hidden; transition: box-shadow .2s, transform .2s; display: flex; flex-direction: column;
-    }
-    .acard:hover { box-shadow: 0 8px 28px rgba(0,0,0,.1); transform: translateY(-3px); }
+    /* LAYOUT */
+    .layout { max-width: 1280px; margin: 0 auto; padding: 24px 32px 60px; display: grid; grid-template-columns: 220px 1fr; gap: 24px; align-items: start; }
 
-    .avatar-lg {
-      width: 64px; height: 64px; border-radius: 10px; object-fit: cover;
-      border: 3px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,.12); flex-shrink: 0;
-    }
-    .avatar-initials {
-      width: 64px; height: 64px; border-radius: 10px; background: var(--brand);
-      color: #fff; display: flex; align-items: center; justify-content: center;
-      font-size: 24px; font-weight: 700; flex-shrink: 0;
-    }
+    /* SIDEBAR */
+    .sidebar { position: sticky; top: 78px; display: flex; flex-direction: column; gap: 12px; }
+    .fsec { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .fsec-head { padding: 11px 16px; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid var(--border); background: var(--bg); }
+    .fopt { display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; cursor: pointer; transition: background .1s; }
+    .fopt:hover { background: var(--bg); }
+    .fopt label { font-size: 13px; color: var(--ink-2); cursor: pointer; display: flex; align-items: center; gap: 8px; }
+    .fopt input[type=checkbox] { accent-color: var(--brand); width: 14px; height: 14px; cursor: pointer; flex-shrink: 0; }
+    .fopt-count { font-size: 11px; color: var(--muted-2); }
+    .f-more { background: none; border: none; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500; color: var(--brand); cursor: pointer; padding: 9px 16px; text-align: left; display: block; width: 100%; }
+    .clear-all { background: none; border: none; font-family: 'Inter', sans-serif; font-size: 12px; color: var(--muted); cursor: pointer; text-align: left; padding: 4px 0; transition: color .15s; }
+    .clear-all:hover { color: var(--ink); }
 
-    .tag { display: inline-block; background: var(--brand-pale); color: var(--brand-dark); font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 4px; }
-    .badge-green { display: inline-block; background: #ECFDF5; color: #065F46; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px; }
+    /* CONTENT */
+    .sort-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+    .result-count { font-size: 13px; color: var(--muted); }
+    .result-count strong { color: var(--ink); font-weight: 600; }
+    .active-filters { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .af { display: inline-flex; align-items: center; gap: 4px; background: var(--brand-light); color: var(--brand); font-size: 12px; font-weight: 500; padding: 3px 8px; border-radius: 4px; }
+    .af button { background: none; border: none; color: var(--brand); cursor: pointer; font-size: 13px; line-height: 1; padding: 0; margin-left: 2px; }
+    .sort-controls { display: flex; align-items: center; gap: 8px; }
+    .sort-select { padding: 7px 10px; border: 1px solid var(--border); border-radius: 6px; font-family: 'Inter', sans-serif; font-size: 13px; color: var(--ink-2); background: var(--surface); outline: none; cursor: pointer; }
+    .view-toggle { display: flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+    .vbtn { padding: 7px 9px; background: var(--surface); border: none; cursor: pointer; color: var(--muted); display: flex; align-items: center; transition: background .1s, color .1s; }
+    .vbtn.active { background: var(--bg); color: var(--ink); }
+    .vbtn + .vbtn { border-left: 1px solid var(--border); }
 
-    .btn-primary { background: var(--brand); color: #fff; font-size: 13px; font-weight: 600; padding: 8px 18px; border-radius: 8px; border: none; cursor: pointer; transition: background .15s; text-decoration: none; display: inline-block; }
-    .btn-primary:hover { background: var(--brand-dark); }
-    .btn-ghost { background: transparent; color: var(--ink-2); font-size: 13px; font-weight: 500; padding: 8px 18px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; transition: border-color .15s; }
+    /* ARTISAN LIST (One per row) */
+    .agrid { display: flex; flex-direction: column; gap: 14px; }
 
-    .hero-bar { background: linear-gradient(130deg, #C4622D 0%, #9E4E24 100%); padding: 48px 24px; }
+    .acard { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; cursor: pointer; transition: box-shadow .18s, transform .18s; display: flex; flex-direction: row; }
+    .acard:hover { box-shadow: 0 4px 18px rgba(0,0,0,.08); transform: translateY(-1px); }
 
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-    .fade-up { animation: fadeUp .4s ease both; }
+    .acard-cover { width: 180px; min-height: 130px; position: relative; overflow: hidden; flex-shrink: 0; }
+    .acard-cover img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .4s; }
+    .acard:hover .acard-cover img { transform: scale(1.04); }
+    .cover-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 30%, rgba(0,0,0,.32) 100%); }
+    .feat-badge { position: absolute; top: 8px; right: 8px; background: var(--brand); color: #fff; font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 3px; letter-spacing: .04em; }
+    .av-chip { position: absolute; top: 8px; left: 8px; display: flex; align-items: center; gap: 3px; background: rgba(0,0,0,.5); backdrop-filter: blur(4px); color: #fff; font-size: 9px; font-weight: 500; padding: 2px 6px; border-radius: 3px; }
+    .dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+    .dot-g { background: #22C55E; }
+    .dot-m { background: var(--muted-2); }
 
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 3px; }
+    .acard-body { padding: 14px 18px; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+    .acard-name { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+    .acard-craft { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+    .acard-meta { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); margin-bottom: 8px; flex-wrap: wrap; }
+    .acard-rating { font-weight: 500; color: var(--ink-2); display: flex; align-items: center; gap: 3px; }
+    .star { color: var(--star); }
+    .sep { color: var(--border); }
+    .acard-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+    .tag { display: inline-block; background: var(--bg); border: 1px solid var(--border); color: var(--muted); font-size: 10px; font-weight: 500; padding: 2px 6px; border-radius: 4px; }
+    .acard-foot { display: flex; align-items: center; justify-content: space-between; padding-top: 10px; border-top: 1px solid var(--border); margin-top: auto; }
+    .orders-lbl { font-size: 11px; color: var(--muted); }
+    .orders-lbl strong { font-weight: 600; color: var(--ink-2); }
+    .btn-view { background: var(--brand); color: #fff; font-size: 12px; font-weight: 500; padding: 6px 14px; border-radius: 5px; border: none; cursor: pointer; font-family: 'Inter', sans-serif; transition: background .15s; }
+    .btn-view:hover { background: var(--brand-hover); }
+
+    /* PAGINATION */
+    .pagination { display: flex; justify-content: center; align-items: center; gap: 4px; margin-top: 28px; }
+    .pg { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; font-weight: 500; color: var(--ink-2); background: var(--surface); cursor: pointer; transition: background .12s, border-color .12s, color .12s; }
+    .pg:hover { border-color: var(--muted); }
+    .pg.active { background: var(--brand); border-color: var(--brand); color: #fff; }
+    .pg.wide { width: auto; padding: 0 12px; }
+    
   </style>
 </head>
 <body>
 
-<header class="navbar">
-  <div style="max-width:1100px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;">
-    <span style="font-size:16px;font-weight:700;color:var(--brand);">m3alem</span>
-    <nav style="display:flex;gap:24px;align-items:center;">
-      <a href="{{ route('feed') }}" style="font-size:13px;font-weight:500;color:var(--muted);text-decoration:none;">Feed</a>
-      <a href="{{ route('artisans.index') }}" style="font-size:13px;font-weight:600;color:var(--ink);text-decoration:none;">Artisans</a>
-      @auth
-        <a href="{{ route('dashboard') }}" style="font-size:13px;font-weight:500;color:var(--muted);text-decoration:none;">Dashboard</a>
-      @else
-        <a href="{{ route('login') }}" class="btn-primary" style="padding:6px 16px;font-size:13px;">Login</a>
-      @endauth
-    </nav>
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <span class="nav-logo">m3alem</span>
+    <div class="nav-links">
+      <a href="#">Feed</a>
+      <a href="#" class="active">Explore</a>
+      <a href="#">Messages</a>
+      <a href="#">Saved</a>
+    </div>
+    <div class="nav-av">A</div>
   </div>
-</header>
+</nav>
 
-
-<div class="hero-bar">
-  <div style="max-width:1100px;margin:0 auto;text-align:center;">
-    <h1 style="font-size:28px;font-weight:700;color:#fff;margin-bottom:8px;">Browse Moroccan Artisans</h1>
-    <p style="font-size:14px;color:rgba(255,255,255,.75);margin-bottom:24px;">Discover skilled craftspeople and connect directly with the makers.</p>
-
-    <form method="GET" action="{{ route('artisans.index') }}" style="display:flex;gap:10px;max-width:640px;margin:0 auto;flex-wrap:wrap;">
-      <div style="position:relative;flex:1;min-width:200px;">
-        <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;opacity:.4;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input type="text" name="search" class="search-field" placeholder="Search by name, craft, city…" value="{{ request('search') }}" />
-      </div>
-      <select name="city" class="select-field">
-        <option value="">All Cities</option>
-        @foreach($cities as $city)
-          <option value="{{ $city }}" {{ request('city') === $city ? 'selected' : '' }}>{{ $city }}</option>
-        @endforeach
-      </select>
-      <button type="submit" class="btn-primary">Search</button>
-    </form>
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="page-header-inner">
+    <div>
+      <h1>Browse Artisans</h1>
+      <p>Discover skilled craftspeople from across Morocco</p>
+    </div>
+    <div class="search-wrap">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input class="search-input" type="text" placeholder="Search artisans, crafts…" />
+    </div>
   </div>
 </div>
 
-<div style="max-width:1100px;margin:0 auto;padding:32px 20px 60px;">
-
-
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:8px;">
-    <p style="font-size:14px;color:var(--muted);">
-      Showing <strong style="color:var(--ink);">{{ $artisans->total() }}</strong> artisan{{ $artisans->total() !== 1 ? 's' : '' }}
-      @if(request('search')) matching <strong style="color:var(--ink);">"{{ request('search') }}"</strong>@endif
-      @if(request('city')) in <strong style="color:var(--ink);">{{ request('city') }}</strong>@endif
-    </p>
-    @if(request('search') || request('city'))
-      <a href="{{ route('artisans.index') }}" style="font-size:12px;color:var(--brand);text-decoration:none;font-weight:500;">Clear filters ×</a>
-    @endif
+<!-- CATEGORY TABS -->
+<div class="cat-bar">
+  <div class="cat-bar-inner">
+    <span class="cat-tab active">All <span class="cat-count">248</span></span>
+    <span class="cat-tab">Pottery <span class="cat-count">54</span></span>
+    <span class="cat-tab">Weaving <span class="cat-count">41</span></span>
+    <span class="cat-tab">Leather <span class="cat-count">37</span></span>
+    <span class="cat-tab">Metalwork <span class="cat-count">29</span></span>
+    <span class="cat-tab">Ceramics <span class="cat-count">48</span></span>
+    <span class="cat-tab">Woodwork <span class="cat-count">22</span></span>
+    <span class="cat-tab">Jewelry <span class="cat-count">17</span></span>
   </div>
+</div>
 
+<!-- LAYOUT -->
+<div class="layout">
 
-  @if($artisans->isEmpty())
-    <div style="text-align:center;padding:60px 20px;color:var(--muted);">
-      <div style="font-size:40px;margin-bottom:12px;">🔍</div>
-      <p style="font-size:15px;font-weight:500;margin-bottom:4px;">No artisans found</p>
-      <p style="font-size:13px;">Try adjusting your search or clearing filters.</p>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    <div class="fsec">
+      <div class="fsec-head">Location</div>
+      <div class="fopt"><label><input type="checkbox" checked />Fès</label><span class="fopt-count">68</span></div>
+      <div class="fopt"><label><input type="checkbox" />Marrakech</label><span class="fopt-count">54</span></div>
+      <div class="fopt"><label><input type="checkbox" />Casablanca</label><span class="fopt-count">41</span></div>
+      <div class="fopt"><label><input type="checkbox" />Rabat</label><span class="fopt-count">29</span></div>
+      <div class="fopt"><label><input type="checkbox" />Chefchaouen</label><span class="fopt-count">18</span></div>
+      <div class="fopt"><label><input type="checkbox" />Meknès</label><span class="fopt-count">15</span></div>
+      <button class="f-more">+ Show more</button>
     </div>
-  @else
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;">
-      @foreach($artisans as $i => $artisan)
-      <div class="acard fade-up" style="animation-delay:{{ $i * 0.04 }}s;">
+
+    <div class="fsec">
+      <div class="fsec-head">Availability</div>
+      <div class="fopt"><label><input type="checkbox" checked />Available now</label><span class="fopt-count">143</span></div>
+      <div class="fopt"><label><input type="checkbox" />Takes commissions</label><span class="fopt-count">201</span></div>
+      <div class="fopt"><label><input type="checkbox" />Ships worldwide</label><span class="fopt-count">186</span></div>
+    </div>
 
 
-        <div style="height:6px;background:linear-gradient(90deg,#C4622D,#9E4E24);"></div>
 
-        <div style="padding:20px;flex:1;display:flex;flex-direction:column;gap:14px;">
+    <div class="fsec">
+      <div class="fsec-head">Experience</div>
+      <div class="fopt"><label><input type="checkbox" />Master (15+ yrs)</label><span class="fopt-count">47</span></div>
+      <div class="fopt"><label><input type="checkbox" />Senior (8–15 yrs)</label><span class="fopt-count">89</span></div>
+      <div class="fopt"><label><input type="checkbox" />Mid (3–8 yrs)</label><span class="fopt-count">74</span></div>
+      <div class="fopt"><label><input type="checkbox" />Emerging (&lt;3 yrs)</label><span class="fopt-count">38</span></div>
+    </div>
 
+    <button class="clear-all">Clear all filters</button>
+  </aside>
 
-          <div style="display:flex;align-items:flex-start;gap:14px;">
-            <div class="avatar-initials">{{ strtoupper(substr($artisan->name, 0, 1)) }}</div>
-            <div style="flex:1;min-width:0;">
-              <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px;">
-                <h2 style="font-size:15px;font-weight:700;">{{ $artisan->name }}</h2>
-                <span class="badge-green">Active</span>
-              </div>
-              <p style="font-size:12px;color:var(--muted);">
-                {{ $artisan->artisan->service ?? 'Artisan' }}
-                @if($artisan->city) &nbsp;·&nbsp; {{ $artisan->city }} @endif
-              </p>
-              @php $avg = round($artisan->reviewsReceived->avg('rating') ?? 0, 1); @endphp
-              @if($avg > 0)
-              <p style="font-size:12px;margin-top:3px;">
-                <span style="color:#F59E0B;">★</span>
-                <span style="font-weight:600;color:var(--ink);">{{ $avg }}</span>
-                <span style="color:var(--muted);">({{ $artisan->reviewsReceived->count() }})</span>
-              </p>
-              @endif
-            </div>
-          </div>
-
-
-          @if($artisan->artisan?->experience)
-          <p style="font-size:13px;color:var(--ink-2);line-height:1.6;">
-            {{ Str::limit($artisan->artisan->experience, 100) }}
-          </p>
-          @endif
-
-
-          @php
-            $certs = $artisan->artisan?->certifications;
-            if (is_string($certs)) {
-                $certs = json_decode($certs, true) ?? [];
-            }
-          @endphp
-          @if(is_array($certs) && count($certs) > 0)
-          <div style="display:flex;flex-wrap:wrap;gap:5px;">
-            @foreach(array_slice($certs, 0, 4) as $skill)
-              <span class="tag">{{ $skill }}</span>
-            @endforeach
-            @if(count($certs) > 4)
-              <span style="font-size:11px;color:var(--muted);align-self:center;">+{{ count($certs) - 4 }} more</span>
-            @endif
-          </div>
-          @endif
-
-
-          <div style="display:flex;gap:16px;padding:10px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
-            <div>
-              <div style="font-size:16px;font-weight:700;">{{ $artisan->posts_count ?? '—' }}</div>
-              <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;">Listings</div>
-            </div>
-            <div>
-              <div style="font-size:16px;font-weight:700;">{{ $artisan->reviewsReceived->count() }}</div>
-              <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;">Reviews</div>
-            </div>
-            <div>
-              <div style="font-size:16px;font-weight:700;">{{ $artisan->artisan?->workingArea ?? '—' }}</div>
-              <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;">Craft</div>
-            </div>
-          </div>
-
-
-          <a href="{{ route('artisan.profile', $artisan->id) }}" class="btn-primary" style="text-align:center;width:100%;">
-            View Profile
-          </a>
-
+  <!-- CONTENT -->
+  <div>
+    <div class="sort-row">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <span class="result-count"><strong>248</strong> artisans</span>
+        <div class="active-filters">
+          <span class="af">Fès <button>×</button></span>
+          <span class="af">4+ stars <button>×</button></span>
+          <span class="af">Available now <button>×</button></span>
         </div>
       </div>
-      @endforeach
+      <div class="sort-controls">
+        <select class="sort-select">
+          <option>Most Relevant</option>
+          <option>Highest Rated</option>
+          <option>Most Orders</option>
+          <option>Newest</option>
+        </select>
+       </div>
     </div>
 
+    <div class="agrid">
+      <!-- 1 -->
+      <div class="acard">
+        <div class="acard-cover">
+          <img src="https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=500&q=80" alt="" />
+          <div class="cover-overlay"></div>
+        </div>
+        <div class="acard-body">
+          <div class="acard-name">Fatima Al-Rouissi</div>
+          <div class="acard-craft">Ceramic Master · Fès</div>
+          <div class="acard-meta">
+            <span class="sep">·</span>
+            <span>(187 reviews)</span>
+            <span class="sep">·</span>
+            <span>892 orders</span>
+          </div>
+          <div class="acard-tags">
+            <span class="tag">Pottery</span><span class="tag">Zellige</span><span class="tag">Custom</span>
+            <button class="btn-view">View Profile</button>
+          </div>
+        </div>
+      </div>
 
-    <div style="margin-top:36px;">
-      {{ $artisans->links() }}
     </div>
-  @endif
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <button class="pg wide">← Prev</button>
+      <button class="pg active">1</button>
+      <button class="pg">2</button>
+      <button class="pg">3</button>
+      <span style="font-size:13px;color:var(--muted);padding:0 2px;">…</span>
+      <button class="pg">12</button>
+      <button class="pg wide">Next →</button>
+    </div>
+  </div>
 
 </div>
 
-<footer style="background:#111827;border-top:1px solid #1F2937;">
-  <div style="max-width:1100px;margin:0 auto;padding:20px 24px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;">
-    <span style="font-size:15px;font-weight:700;color:var(--brand);">m3alem</span>
-    <p style="font-size:12px;color:#6B7280;">© 2025 m3alem · Connect with Moroccan Artisans.</p>
+<!-- FOOTER -->
+<footer style="background:var(--ink);border-top:1px solid #27272A;">
+  <div style="max-width:1280px;margin:0 auto;padding:20px 32px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;">
+    <span style="font-size:15px;font-weight:700;color:var(--brand-mid);">m3alem</span>
+    <p style="font-size:12px;color:#52525B;">© 2025 m3alem · Connect with Moroccan Artisans. All rights reserved.</p>
+    <div style="display:flex;gap:18px;">
+      <a href="#" style="font-size:12px;color:#52525B;text-decoration:none;">Privacy</a>
+      <a href="#" style="font-size:12px;color:#52525B;text-decoration:none;">Terms</a>
+      <a href="#" style="font-size:12px;color:#52525B;text-decoration:none;">Support</a>
+    </div>
   </div>
 </footer>
 
+<script>
+  document.querySelectorAll('.cat-tab').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.cat-tab').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+    });
+  });
+  document.querySelectorAll('.vbtn').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.vbtn').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+    });
+  });
+  document.querySelectorAll('.af button').forEach(b => {
+    b.addEventListener('click', () => b.closest('.af').remove());
+  });
+  document.querySelectorAll('.pg:not(.wide)').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.pg:not(.wide)').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+    });
+  });
+</script>
 </body>
 </html>
