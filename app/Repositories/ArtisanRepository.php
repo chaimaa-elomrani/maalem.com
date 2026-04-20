@@ -41,7 +41,7 @@ class ArtisanRepository
 
     public function findWithDetails(int $id)
     {
-        return User::with(['artisan', 'posts', 'reviewsReceived.user'])->findOrFail($id);
+        return User::with(['artisan', 'posts.comments.user', 'reviewsReceived.user'])->findOrFail($id);
     }
 
     public function updateOrCreateProfile(int $userId, array $data)

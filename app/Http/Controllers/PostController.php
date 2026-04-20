@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\PostService;
+use App\Models\Post;
 
 class PostController extends Controller
 {
@@ -14,9 +15,15 @@ class PostController extends Controller
         $this->postService = $postService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $posts = $this->postService->getFeed(12);
+        $filters = $request->only(['search', 'category']);
+        $posts = $this->postService->getFeed($filters, 12);
+        
+        if ($request->expectsJson()) {
+            return response()->json($posts);
+        }
+        
         return view('feed', compact('posts'));
     }
 
@@ -44,5 +51,28 @@ class PostController extends Controller
         $this->postService->storePost($data, $user->artisan->id);
 
         return redirect()->route('artisan.dashboard')->with('success', 'Your craft has been listed successfully!');
+    }
+
+    public function toggleLike(Post $post)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+        
+        $like = $post->likes()->where('user_id', $user->id)->first();
+        
+        if ($like) {
+            $like->delete();
+            $isLiked = false;
+        } else {
+            $post->likes()->create(['user_id' => $user->id]);
+            $isLiked = true;
+        }
+        
+        return response()->json([
+            'isLiked' => $isLiked,
+            'likesCount' => $post->likes()->count()
+        ]);
     }
 }

@@ -23,13 +23,14 @@ class Post extends Model
         'tags' => 'array',
     ];
 
+    protected $appends = ['likes_count', 'comments_count', 'is_liked'];
+
     public function artisan()
     {
         return $this->belongsTo(Artisan::class);
     }
 
 
-    
     public function likes()
     {
         return $this->hasMany(PostLike::class);
@@ -44,5 +45,22 @@ class Post extends Model
     {
         return $this->likes()->count();
     }
-            
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function getCommentsCountAttribute()
+    {
+        return $this->comments()->count();
+    }
+
+    public function getIsLikedAttribute()
+    {
+        if (auth()->check()) {
+            return $this->isLikedBy(auth()->user());
+        }
+        return false;
+    }
 }

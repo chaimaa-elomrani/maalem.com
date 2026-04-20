@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ArtisanProfileController;
+use App\Http\Controllers\CommentController;
 
 
 
@@ -29,6 +30,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/artisan/setup', [ArtisanProfileController::class, 'setupForm'])->name('artisan.setup');
     Route::post('/artisan/setup', [ArtisanProfileController::class, 'setupStore'])->name('artisan.setup.store');
     Route::get('/artisan-dashboard', [ArtisanProfileController::class, 'dashboard'])->name('artisan.dashboard');
+
+    Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
+    Route::post('/posts/{post}/like', [PostController::class, 'toggleLike'])->name('posts.like');
 });
 
 Route::get('/artisans', [ArtisanProfileController::class, 'index'])->name('artisans.index');

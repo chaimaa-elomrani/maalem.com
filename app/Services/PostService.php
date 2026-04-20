@@ -14,9 +14,9 @@ class PostService
         $this->postRepository = $postRepository;
     }
 
-    public function getFeed(int $perPage = 12)
+    public function getFeed(array $filters = [], int $perPage = 12)
     {
-        return $this->postRepository->getPaginatedFeed($perPage);
+        return $this->postRepository->getPaginatedFeed($filters, $perPage);
     }
 
     public function storePost(array $data, $artisanId)
