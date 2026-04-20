@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>m3alem — Artisan Feed</title>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <style>
@@ -38,15 +39,11 @@
       transform: translateY(-6px);
       box-shadow: 0 20px 60px rgba(28,22,18,0.15);
     }
-    .craft-card:hover .card-image img {
-      transform: scale(1.06);
-    }
     .card-image {
       overflow: hidden;
       border-radius: 12px 12px 0 0;
     }
     .card-image img {
-      transition: transform 0.5s ease;
       width: 100%;
       height: 450px;
       object-fit: cover;
@@ -190,6 +187,191 @@
     .interaction-icon:active {
       transform: scale(0.9);
     }
+
+    /* Comment Modal */
+    .comment-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(28,22,18,0.5);
+      backdrop-filter: blur(6px);
+      z-index: 999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      animation: overlayIn 0.25s ease;
+    }
+    .comment-overlay.active {
+      display: flex;
+    }
+    @keyframes overlayIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    .comment-modal {
+      background: white;
+      border-radius: 20px;
+      width: 95%;
+      max-width: 520px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 24px 80px rgba(28,22,18,0.25);
+      animation: modalSlideUp 0.35s cubic-bezier(0.34,1.56,0.64,1);
+      overflow: hidden;
+    }
+    @keyframes modalSlideUp {
+      from { opacity: 0; transform: translateY(40px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .comment-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--sand-dark);
+      flex-shrink: 0;
+    }
+    .comment-modal-header h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .comment-modal-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: var(--sand);
+      color: var(--ink-muted);
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, color 0.15s;
+    }
+    .comment-modal-close:hover {
+      background: var(--terracotta);
+      color: white;
+    }
+    .comment-modal-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 22px;
+      min-height: 120px;
+    }
+    .comment-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--sand);
+      animation: fadeUp 0.3s ease both;
+    }
+    .comment-item:last-child {
+      border-bottom: none;
+    }
+    .comment-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--terracotta);
+      color: white;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .comment-content {
+      flex: 1;
+    }
+    .comment-author {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 2px;
+    }
+    .comment-text {
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--ink-muted);
+    }
+    .comment-time {
+      font-size: 11px;
+      color: var(--ink-muted);
+      opacity: 0.6;
+      margin-top: 4px;
+    }
+    .comment-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      text-align: center;
+    }
+    .comment-empty svg {
+      width: 56px;
+      height: 56px;
+      color: var(--sand-dark);
+      margin-bottom: 16px;
+    }
+    .comment-empty p {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+    .comment-empty span {
+      font-size: 13px;
+      color: var(--ink-muted);
+    }
+    .comment-modal-footer {
+      padding: 14px 22px;
+      border-top: 1px solid var(--sand-dark);
+      flex-shrink: 0;
+    }
+    .comment-form {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .comment-input {
+      flex: 1;
+      padding: 10px 16px;
+      border: 1px solid var(--sand-dark);
+      border-radius: 999px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--ink);
+      background: var(--cream);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .comment-input:focus {
+      border-color: var(--terracotta);
+      box-shadow: 0 0 0 3px rgba(196,98,45,0.12);
+    }
+    .comment-submit {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 999px;
+      background: var(--terracotta);
+      color: white;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .comment-submit:hover {
+      background: var(--terracotta-dark);
+    }
+    .comment-submit:active {
+      transform: scale(0.96);
+    }
   </style>
 </head>
 <body>
@@ -266,156 +448,53 @@
           <a href="#" class="block text-sm py-1.5 transition-colors hover:text-terracotta" style="color:var(--ink-muted);">Support</a>
         </div>
       </div>
-    </div>
   </aside>
 
 
   <main class="col-span-12 lg:col-span-7 space-y-6">
 
-    <div class="rounded-2xl p-5" style="background:white;box-shadow:0 2px 20px rgba(28,22,18,0.06);">
-      <div class="relative mb-4">
+    <div class="max-w-xl mx-auto rounded-2xl p-5" style="background:white;box-shadow:0 2px 20px rgba(28,22,18,0.06);">
+      <form id="search-form" class="relative mb-4" onsubmit="handleSearch(event)">
         <input
           type="text"
+          id="search-input"
           placeholder="Search for artisans or crafts..."
+          value="{{ request('search') }}"
           class="search-bar w-full px-4 py-3 rounded-xl text-sm border transition-all"
           style="border-color:var(--sand-dark);background:var(--cream);color:var(--ink);"
         />
-      </div>
-      <div class="flex gap-2 flex-wrap">
-        <button class="filter-active tag">All</button>
-        <button class="tag hover:border-terracotta transition-colors" style="cursor:pointer;">Pottery</button>
-        <button class="tag hover:border-terracotta transition-colors" style="cursor:pointer;">Weaving</button>
-        <button class="tag hover:border-terracotta transition-colors" style="cursor:pointer;">Leather</button>
-        <button class="tag hover:border-terracotta transition-colors" style="cursor:pointer;">Metalwork</button>
-        <button class="tag hover:border-terracotta transition-colors" style="cursor:pointer;">Ceramics</button>
-        <button class="tag hover:border-terracotta transition-colors" style="cursor:pointer;">Woodwork</button>
+        <button type="submit" class="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:opacity-70 transition-opacity">
+          <svg style="width:18px;height:18px;color:var(--ink-muted);" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        </button>
+      </form>
+      <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide flex-nowrap items-center">
+        <div id="clear-filters-container" class="hidden">
+           <a href="#" onclick="clearFilters()" class="text-xs font-semibold mr-2" style="color:var(--terracotta);">Clear All ×</a>
+        </div>
+        <a href="#" onclick="setCategory(null)" class="category-tag tag {{ !request('category') ? 'filter-active' : '' }}">All</a>
+        @foreach(['Pottery', 'Weaving', 'Leather', 'Metalwork', 'Ceramics', 'Woodwork'] as $cat)
+          <a href="#" 
+             onclick="setCategory('{{ $cat }}')"
+             class="category-tag tag {{ request('category') === $cat ? 'filter-active' : '' }} hover:border-terracotta transition-colors" 
+             style="cursor:pointer;">{{ $cat }}</a>
+        @endforeach
       </div>
     </div>
 
-    <div class="max-w-xl mx-auto space-y-8">
-
-      @forelse($posts as $post)
-      <div class="craft-card fade-up delay-1 rounded-2xl overflow-hidden" style="background:white;box-shadow:0 2px 20px rgba(28,22,18,0.07);">
-        <div class="card-image relative">
-          @php
-              $defaultImages = [
-                  'Artisan Woman Weaving Traditional Moroccan Baskets.jpeg',
-                  'Broderie de Fez.jpeg',
-                  'L’Artisanat Marocain _ Un Héritage de Savoir-Faire Authentique.jpeg',
-                  'Pottery Painting, Morocco.jpeg',
-                  'Tapis Marocaine.jpeg',
-                  'artisanat au maroc - Page 7.jpeg',
-                  'image 26.png', 'image 34.png', 'image 35.png', 'image 36.png', 'image 37.png', 
-                  'image 38.png', 'image 39.png', 'image 40.png', 'image 41.png', 'image 42.png',
-                  'Кожевенные красильни Марракеша.jpeg',
-                  'Разноцветье Марокко рядом.jpeg'
-              ];
-              $imageIndex = (int) $post->id % count($defaultImages);
-              $placeholderImage = $defaultImages[$imageIndex];
-              
-              // Get all images
-              $allImages = [];
-              if ($post->images && is_array($post->images)) {
-                  $allImages = $post->images;
-              } elseif ($post->images && is_string($post->images)) {
-                  $allImages = json_decode($post->images, true) ?? [];
-              }
-          @endphp
-
-          <div class="image-scroller">
-            @if(count($allImages) > 0)
-              @foreach($allImages as $img)
-                @php $isSeederPlaceholder = $img && str_contains($img, 'unsplash.com'); @endphp
-                @if(!$isSeederPlaceholder)
-                  @php
-                    $imgPath = 'storage/' . $img;
-                    if (!str_starts_with($img, 'http') && file_exists(public_path('images/' . $img))) {
-                        $imgPath = 'images/' . $img;
-                    }
-                  @endphp
-                  <img src="{{ str_starts_with($img, 'http') ? $img : asset($imgPath) }}" class="scroller-image" alt="{{ $post->title }}" />
-                @else
-                  <img src="{{ asset('images/' . $placeholderImage) }}" class="scroller-image" alt="{{ $post->title }}" />
-                @endif
-              @endforeach
-            @else
-              <img src="{{ asset('images/' . $placeholderImage) }}" class="scroller-image" alt="{{ $post->title }}" />
-            @endif
-          </div>
-          
-          @if(count($allImages) > 1)
-            <div class="absolute bottom-4 right-4 bg-black/50 text-white text-[10px] px-2 py-1 rounded-full backdrop-blur-sm pointer-events-none">
-              1 / {{ count($allImages) }}
-            </div>
-          @endif
-          <div class="card-overlay"></div>
-        </div>
-
-  <div class="interaction-bar">
-          <div class="flex items-center gap-1.5 cursor-pointer group">
-            <svg class="interaction-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-            </svg>
-            <span class="text-xs font-bold" style="color:var(--ink);">{{ $post->likes_count ?? rand(10, 200) }}</span>
-          </div>
-
-          <div class="flex items-center gap-1.5 cursor-pointer group">
-            <svg class="interaction-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-            </svg>
-            <span class="text-xs font-bold" style="color:var(--ink);">{{ rand(5, 40) }}</span>
-          </div>
-
-          <div class="ml-auto">
-            <svg class="interaction-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
-            </svg>
-          </div>
-        </div>
-
-        <div class="p-4 pt-0">
-          <div class="flex items-center gap-3 mb-3">
-            <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 avatar-ring" style="background:var(--terracotta);color:white;">
-              {{ ($post->artisan && $post->artisan->user) ? strtoupper(substr($post->artisan->user->name, 0, 1)) : 'A' }}
-            </div>
-            <div>
-              <p class="text-sm font-semibold leading-tight" style="color:var(--ink);">{{ ($post->artisan && $post->artisan->user) ? $post->artisan->user->name : 'Unknown Artisan' }}</p>
-              <p class="text-xs" style="color:var(--ink-muted);">{{ $post->category ?? 'Category' }}</p>
-            </div>
-          </div>
-          <p class="text-sm font-bold mb-1" style="color:var(--ink);">{{ $post->title }}</p>
-          <p class="text-sm leading-relaxed mb-3" style="color:var(--ink-muted);">{{ Str::limit($post->description, 80) }}</p>
-          <div class="flex gap-2 mb-4 flex-wrap">
-            @if($post->tags && is_array($post->tags))
-                @foreach($post->tags as $tag)
-                    <span class="tag">{{ $tag }}</span>
-                @endforeach
-            @elseif($post->tags && is_string($post->tags))
-                @foreach(json_decode($post->tags, true) ?? explode(',', $post->tags) as $tag)
-                    <span class="tag">{{ trim($tag) }}</span>
-                @endforeach
-            @endif
-          </div>
-          <div class="flex items-center justify-between">
-            <span class="price-badge">
-                <!-- Using a default price since price isn't in Post model, or omit it -->
-            </span>
-            <button class="text-xs font-semibold px-4 py-2 rounded-full transition-all hover:opacity-80" style="background:var(--sand);color:var(--terracotta);">View Craft</button>
-          </div>
-        </div>
+    <div id="posts-container" class="max-w-xl mx-auto space-y-8 mt-6">
+      <!-- Posts will be loaded here via API -->
+      <div id="feed-loader" class="text-center py-12">
+        <div class="inline-block w-8 h-8 border-4 border-terracotta border-t-transparent rounded-full animate-spin"></div>
+        <p class="mt-4 text-sm font-medium" style="color:var(--ink-muted);">Curating the finest crafts...</p>
       </div>
-      @empty
-      <div class="col-span-full text-center py-12">
-          <p style="color:var(--ink-muted);">No crafts have been posted yet.</p>
-      </div>
-      @endforelse
-
     </div>
 
-    <!-- Load More / Pagination -->
-    <div class="pt-4 pb-6 mt-6">
-      {{ $posts->links() }}
+    <div id="empty-state" class="hidden max-w-xl mx-auto text-center py-12">
+        <p style="color:var(--ink-muted);">No crafts matches your search.</p>
     </div>
+
+    <!-- Load More Trigger for Infinite Scroll -->
+    <div id="infinite-scroll-trigger" class="h-20"></div>
 
   </main>
 
@@ -463,7 +542,7 @@
         <div class="space-y-1">
 
           <div class="featured-artisan flex items-center gap-3 cursor-pointer">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 avatar-ring" style="background:var(--terracotta);color:white;">F</div>
+            <img src="{{ asset('images/profile.webp') }}" class="w-10 h-10 rounded-full object-cover flex-shrink-0 avatar-ring" alt="Artisan Profile" />
             <div class="flex-1 min-w-0">
               <p class="text-sm font-semibold truncate" style="color:var(--ink);">Fatima Al-Mansouri</p>
               <p class="text-xs" style="color:var(--ink-muted);">Master Potter</p>
@@ -471,7 +550,7 @@
           </div>
 
           <div class="featured-artisan flex items-center gap-3 cursor-pointer">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 avatar-ring" style="background:var(--tile-blue);color:white;">H</div>
+            <img src="{{ asset('images/profile.webp') }}" class="w-10 h-10 rounded-full object-cover flex-shrink-0 avatar-ring" alt="Artisan Profile" />
             <div class="flex-1 min-w-0">
               <p class="text-sm font-semibold truncate" style="color:var(--ink);">Hassan El-Khayat</p>
               <p class="text-xs" style="color:var(--ink-muted);">Textile Weaver</p>
@@ -496,18 +575,6 @@
 </div>
 
 <script>
-  document.querySelectorAll('.tag[style*="cursor"]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.tag').forEach(t => t.classList.remove('filter-active'));
-      btn.classList.add('filter-active');
-    });
-  });
-  
-  document.querySelector('.filter-active').addEventListener('click', function() {
-    document.querySelectorAll('.tag').forEach(t => t.classList.remove('filter-active'));
-    this.classList.add('filter-active');
-  });
-
   document.querySelectorAll('.image-scroller').forEach(scroller => {
     scroller.addEventListener('scroll', () => {
       const index = Math.round(scroller.scrollLeft / scroller.clientWidth) + 1;
@@ -517,6 +584,400 @@
         counter.innerText = `${index} / ${total}`;
       }
     });
+  });
+
+  function openCommentModal(postId) {
+    const modal = document.getElementById('comment-modal-' + postId);
+    if (modal) {
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  function closeCommentModal(event, postId) {
+    if (event.target === event.currentTarget) {
+      closeCommentModalDirect(postId);
+    }
+  }
+
+  function closeCommentModalDirect(postId) {
+    const modal = document.getElementById('comment-modal-' + postId);
+    if (modal) {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.comment-overlay.active').forEach(modal => {
+        modal.classList.remove('active');
+      });
+      document.body.style.overflow = '';
+    }
+  });
+
+  // API Config
+  const CONFIG = {
+    auth: @json(auth()->check()),
+    loginUrl: "{{ route('login') }}",
+    placeholderImages: [
+      'Artisan Woman Weaving Traditional Moroccan Baskets.jpeg',
+      'Broderie de Fez.jpeg',
+      'L’Artisanat Marocain _ Un Héritage de Savoir-Faire Authentique.jpeg',
+      'Pottery Painting, Morocco.jpeg',
+      'Tapis Marocaine.jpeg',
+      'artisanat au maroc - Page 7.jpeg',
+      'image 26.png', 'image 34.png', 'image 35.png', 'image 36.png', 'image 37.png', 
+      'image 38.png', 'image 39.png', 'image 40.png', 'image 41.png', 'image 42.png',
+      'jpeg(1)',
+      'Кожевенные красильни Марракеша.jpeg',
+      'Разноцветье Марокко рядом.jpeg'
+    ],
+    assetImages: "{{ asset('images/') }}/",
+    assetStorage: "{{ asset('storage/') }}/",
+  };
+
+  let currentPage = 1;
+  let currentSearch = '{{ request('search', '') }}';
+  let currentCategory = '{{ request('category', '') }}';
+  let isLoading = false;
+  let hasMore = true;
+
+  const container = document.getElementById('posts-container');
+  const loader = document.getElementById('feed-loader');
+  const emptyState = document.getElementById('empty-state');
+  const clearFiltersBtn = document.getElementById('clear-filters-container');
+
+  function truncateText(text, limit = 80) {
+    if (!text) return '';
+    return text.length > limit ? text.substring(0, limit) + '...' : text;
+  }
+
+  function timeAgo(dateString) {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const now = new Date();
+    const seconds = Math.floor((now - date) / 1000);
+    
+    let interval = Math.floor(seconds / 31536000);
+    if (interval > 1) return interval + " years ago";
+    interval = Math.floor(seconds / 2592000);
+    if (interval > 1) return interval + " months ago";
+    interval = Math.floor(seconds / 86400);
+    if (interval > 1) return interval + " days ago";
+    interval = Math.floor(seconds / 3600);
+    if (interval > 1) return interval + " hours ago";
+    interval = Math.floor(seconds / 60);
+    if (interval > 1) return interval + " minutes ago";
+    return Math.floor(seconds) + " seconds ago";
+  }
+
+  function initFeed() {
+    loadPosts(true);
+    setupInfiniteScroll();
+  }
+
+  async function loadPosts(reset = false) {
+    if (isLoading || (!hasMore && !reset)) return;
+    
+    isLoading = true;
+    if (reset) {
+      currentPage = 1;
+      hasMore = true;
+      container.innerHTML = '';
+      emptyState.classList.add('hidden');
+    }
+    loader.classList.remove('hidden');
+
+    if (currentSearch || currentCategory) {
+      clearFiltersBtn.classList.remove('hidden');
+    } else {
+      clearFiltersBtn.classList.add('hidden');
+    }
+
+    try {
+      const params = new URLSearchParams({
+        page: currentPage,
+        search: currentSearch,
+        category: currentCategory
+      });
+
+      const response = await fetch(`/feed?${params.toString()}`, {
+        headers: { 'Accept': 'application/json' }
+      });
+      const data = await response.json();
+
+      if (reset && data.data.length === 0) {
+        emptyState.classList.remove('hidden');
+      }
+
+      data.data.forEach((post, index) => {
+        const card = createPostCard(post, index);
+        container.insertAdjacentHTML('beforeend', card);
+      });
+
+      currentPage++;
+      hasMore = data.next_page_url !== null;
+      
+      // Initialize scrollers for new content
+      initScrollers();
+
+    } catch (error) {
+      console.error('Failed to load posts:', error);
+    } finally {
+      isLoading = false;
+      loader.classList.add('hidden');
+    }
+  }
+
+  function createPostCard(post, index = 0) {
+    const placeholder = CONFIG.placeholderImages[post.id % CONFIG.placeholderImages.length];
+    const images = Array.isArray(post.images) ? post.images : [];
+    
+    let imagesHtml = '';
+    if (images.length > 0) {
+      images.forEach(img => {
+        const isSeeder = img && img.includes('unsplash.com');
+        const isLocalPlaceholder = CONFIG.placeholderImages.includes(img);
+        
+        let src;
+        if (isSeeder || isLocalPlaceholder) {
+            src = CONFIG.assetImages + (isLocalPlaceholder ? img : placeholder);
+        } else if (img.startsWith('http')) {
+            src = img;
+        } else {
+            src = CONFIG.assetStorage + img;
+        }
+        
+        imagesHtml += `<img src="${src}" class="scroller-image" alt="${post.title}" />`;
+      });
+    } else {
+      imagesHtml = `<img src="${CONFIG.assetImages + placeholder}" class="scroller-image" alt="${post.title}" />`;
+    }
+
+    const tagsHtml = Array.isArray(post.tags) ? post.tags.map(t => `<span class="tag">${t.trim()}</span>`).join('') : '';
+    const artisanName = (post.artisan && post.artisan.user) ? post.artisan.user.name : 'Unknown Artisan';
+    
+    // Recent comments
+    const recentComments = post.comments ? post.comments.slice(0, 2) : [];
+    let commentsHtml = recentComments.map(c => `
+      <div class="text-sm">
+        <span class="font-bold mr-1">${c.user ? c.user.name : 'User'}</span>
+        <span style="color:var(--ink-muted);">${c.content}</span>
+      </div>
+    `).join('');
+
+    let commentPrompt = '';
+    if (post.comments_count > 2) {
+      commentPrompt = `<button onclick="openCommentModal(${post.id})" class="text-xs font-semibold opacity-60 hover:opacity-100 transition-opacity" style="color:var(--ink-muted);cursor:pointer;">View all ${post.comments_count} comments</button>`;
+    } else if (post.comments_count === 0) {
+      commentPrompt = `<button onclick="openCommentModal(${post.id})" class="text-xs font-semibold opacity-60 hover:opacity-100 transition-opacity" style="color:var(--ink-muted);cursor:pointer;">Be the first to comment</button>`;
+    }
+
+    const authForm = CONFIG.auth ? `
+      <form action="/posts/${post.id}/comments" method="POST" class="flex items-center gap-2">
+        <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').content}">
+        <input type="text" name="content" placeholder="Add a comment..." class="flex-1 bg-transparent border-none text-sm focus:ring-0 placeholder-gray-400 py-1" required />
+        <button type="submit" class="text-xs font-bold transition-opacity hover:opacity-70" style="color:var(--terracotta);">Post</button>
+      </form>
+    ` : '';
+
+    const animationDelay = (index % 5) + 1;
+
+    return `
+      <div class="craft-card fade-up delay-${animationDelay} rounded-2xl overflow-hidden" style="background:white;box-shadow:0 2px 20px rgba(28,22,18,0.07);">
+        <div class="card-image relative">
+          <div class="image-scroller">${imagesHtml}</div>
+          ${images.length > 1 ? `<div class="absolute bottom-4 right-4 bg-black/50 text-white text-[10px] px-2 py-1 rounded-full backdrop-blur-sm pointer-events-none">1 / ${images.length}</div>` : ''}
+          <div class="card-overlay"></div>
+        </div>
+        <div class="interaction-bar">
+          <div class="flex items-center gap-1.5 cursor-pointer group" onclick="toggleLike(${post.id})">
+            <svg id="like-icon-${post.id}" class="interaction-icon" fill="${post.is_liked ? 'var(--terracotta)' : 'none'}" stroke="${post.is_liked ? 'var(--terracotta)' : 'currentColor'}" stroke-width="2" viewBox="0 0 24 24" style="transition: all 0.2s ease;">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+            </svg>
+            <span id="like-count-${post.id}" class="text-xs font-bold" style="color:var(--ink);">${post.likes_count}</span>
+          </div>
+          <div class="flex items-center gap-1.5 cursor-pointer group" onclick="openCommentModal(${post.id})">
+            <svg class="interaction-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+            </svg>
+            <span class="text-xs font-bold" style="color:var(--ink);">${post.comments_count}</span>
+          </div>
+        </div>
+        <div class="p-4 pt-0">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-9 h-9 rounded-full object-cover flex-shrink-0 avatar-ring flex items-center justify-center bg-sand-dark text-white font-bold text-xs overflow-hidden">
+                <img src="${CONFIG.assetImages}profile.webp" class="w-full h-full object-cover" alt="Artisan" />
+            </div>
+            <div>
+              <p class="text-sm font-semibold leading-tight" style="color:var(--ink);">${artisanName}</p>
+              <p class="text-xs" style="color:var(--ink-muted);">${post.category || 'Category'}</p>
+            </div>
+          </div>
+          <p class="text-sm font-bold mb-1" style="color:var(--ink);">${post.title}</p>
+          <p class="text-sm leading-relaxed mb-3" style="color:var(--ink-muted);">${truncateText(post.description)}</p>
+          <div class="flex gap-2 mb-4 flex-wrap">${tagsHtml}</div>
+          <div class="mt-4 pt-4 border-t" style="border-color:var(--sand-dark);">
+            <div class="space-y-3 mb-4">
+              ${commentsHtml}
+              ${commentPrompt}
+            </div>
+            ${authForm}
+          </div>
+        </div>
+
+        <div class="comment-overlay" id="comment-modal-${post.id}" onclick="closeCommentModal(event, ${post.id})">
+          <div class="comment-modal" onclick="event.stopPropagation()">
+            <div class="comment-modal-header">
+              <h3>Comments</h3>
+              <button class="comment-modal-close" onclick="closeCommentModalDirect(${post.id})">&times;</button>
+            </div>
+            <div class="comment-modal-body">
+              ${post.comments.length > 0 ? post.comments.map(c => `
+                <div class="comment-item">
+                  <div class="comment-avatar">${c.user.name.charAt(0).toUpperCase()}</div>
+                  <div class="comment-content">
+                    <div class="comment-author">${c.user.name}</div>
+                    <div class="comment-text">${c.content}</div>
+                    <div class="comment-time">${timeAgo(c.created_at)}</div>
+                  </div>
+                </div>
+              `).join('') : `
+                <div class="comment-empty">
+                   <p>No comments yet</p>
+                </div>
+              `}
+            </div>
+            ${CONFIG.auth ? `
+            <div class="comment-modal-footer">
+              <form action="/posts/${post.id}/comments" method="POST" class="comment-form">
+                <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').content}">
+                <input type="text" name="content" class="comment-input" placeholder="Write a comment..." required />
+                <button type="submit" class="comment-submit">Post</button>
+              </form>
+            </div>
+            ` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function initScrollers() {
+    document.querySelectorAll('.image-scroller').forEach(scroller => {
+      scroller.addEventListener('scroll', () => {
+        const index = Math.round(scroller.scrollLeft / scroller.clientWidth) + 1;
+        const counter = scroller.parentElement.querySelector('.absolute.bottom-4.right-4');
+        if (counter) {
+          const total = scroller.querySelectorAll('.scroller-image').length;
+          counter.innerText = `${index} / ${total}`;
+        }
+      });
+    });
+  }
+
+  function setupInfiniteScroll() {
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && hasMore && !isLoading) {
+        loadPosts();
+      }
+    }, { threshold: 0.1 });
+    
+    observer.observe(document.getElementById('infinite-scroll-trigger'));
+  }
+
+  function handleSearch(e) {
+    e.preventDefault();
+    currentSearch = document.getElementById('search-input').value;
+    loadPosts(true);
+  }
+
+  function clearFilters() {
+    currentSearch = '';
+    currentCategory = '';
+    document.getElementById('search-input').value = '';
+    document.querySelectorAll('.category-tag').forEach(tag => {
+      tag.classList.toggle('filter-active', tag.innerText === 'All');
+    });
+    loadPosts(true);
+  }
+
+  function setCategory(cat) {
+    currentCategory = cat || '';
+    document.querySelectorAll('.category-tag').forEach(tag => {
+      tag.classList.toggle('filter-active', (cat === null && tag.innerText === 'All') || tag.innerText === cat);
+    });
+    loadPosts(true);
+  }
+
+  function openCommentModal(postId) {
+    const modal = document.getElementById('comment-modal-' + postId);
+    if (modal) {
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  function closeCommentModal(event, postId) {
+    if (event.target === event.currentTarget) {
+      closeCommentModalDirect(postId);
+    }
+  }
+
+  function closeCommentModalDirect(postId) {
+    const modal = document.getElementById('comment-modal-' + postId);
+    if (modal) {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  }
+
+  function toggleLike(postId) {
+    const icon = document.getElementById('like-icon-' + postId);
+    const countSpan = document.getElementById('like-count-' + postId);
+
+    if (!CONFIG.auth) {
+      window.location.href = CONFIG.loginUrl;
+      return;
+    }
+
+    icon.style.transform = 'scale(1.2)';
+    setTimeout(() => icon.style.transform = 'scale(1)', 200);
+
+    fetch(`/posts/${postId}/like`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+        'Accept': 'application/json'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.isLiked) {
+        icon.setAttribute('fill', 'var(--terracotta)');
+        icon.setAttribute('stroke', 'var(--terracotta)');
+      } else {
+        icon.setAttribute('fill', 'none');
+        icon.setAttribute('stroke', 'currentColor');
+      }
+      countSpan.innerText = data.likesCount;
+    });
+  }
+
+  // Kickoff
+  document.addEventListener('DOMContentLoaded', initFeed);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.comment-overlay.active').forEach(modal => {
+        modal.classList.remove('active');
+      });
+      document.body.style.overflow = '';
+    }
   });
 </script>
 
