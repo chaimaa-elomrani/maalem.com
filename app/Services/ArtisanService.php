@@ -36,9 +36,9 @@ class ArtisanService
         
         return [
             'artisanUser'        => $user,
-            'averageRating'      => round($reviews->avg('rating') ?? 0, 1),
+            'averageRating'      => round($reviews->avg('note') ?? 0, 1),
             'reviewsCount'       => $reviews->count(),
-            'ratingDistribution' => $reviews->groupBy('rating')->map->count(),
+            'ratingDistribution' => $reviews->groupBy('note')->map->count(),
         ];
     }
 

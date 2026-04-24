@@ -1,37 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>m3alem — Browse Artisans</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+@extends('layouts.main')
+
+@section('title', 'm3alem — Browse Artisans')
+
+@push('styles')
   <style>
-    :root {
-      --brand:       #B85C2A;
-      --brand-hover: #9A4B22;
-      --brand-light: #F2E4DA;
-      --brand-mid:   #D97B4F;
-      --ink:         #18181B;
-      --ink-2:       #3F3F46;
-      --muted:       #71717A;
-      --muted-2:     #A1A1AA;
-      --border:      #E4E4E7;
-      --bg:          #F4F4F5;
-      --surface:     #FFFFFF;
-      --star:        #D97706;
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--ink); font-size: 14px; line-height: 1.5; min-height: 100vh; }
-
-    /* NAV */
-    nav { background: var(--ink); height: 54px; display: flex; align-items: center; position: sticky; top: 0; z-index: 100; }
-    .nav-inner { width: 100%; max-width: 1280px; margin: 0 auto; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; }
-    .nav-logo { font-size: 17px; font-weight: 700; color: var(--brand-mid); letter-spacing: -.3px; }
-    .nav-links { display: flex; align-items: center; gap: 28px; }
-    .nav-links a { font-size: 13px; font-weight: 500; color: rgba(255,255,255,.5); text-decoration: none; transition: color .15s; }
-    .nav-links a:hover, .nav-links a.active { color: #fff; }
-    .nav-av { width: 30px; height: 30px; border-radius: 50%; background: var(--brand); color: #fff; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; }
-
     /* PAGE HEADER */
     .page-header { background: var(--surface); border-bottom: 1px solid var(--border); }
     .page-header-inner { max-width: 1280px; margin: 0 auto; padding: 22px 32px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
@@ -119,24 +91,108 @@
     .pg:hover { border-color: var(--muted); }
     .pg.active { background: var(--brand); border-color: var(--brand); color: #fff; }
     .pg.wide { width: auto; padding: 0 12px; }
-    
-  </style>
-</head>
-<body>
 
-<!-- NAV -->
-<nav>
-  <div class="nav-inner">
-    <span class="nav-logo">m3alem</span>
-    <div class="nav-links">
-      <a href="#">Feed</a>
-      <a href="#" class="active">Explore</a>
-      <a href="#">Messages</a>
-      <a href="#">Saved</a>
-    </div>
-    <div class="nav-av">A</div>
-  </div>
-</nav>
+    /* COMPARISON TRAY */
+    .compare-tray {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%) translateY(120%);
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 16px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        padding: 16px 24px;
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        z-index: 1000;
+        transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+        border: 1px solid var(--brand-pale);
+    }
+    .compare-tray.active { transform: translateX(-50%) translateY(0); }
+    .compare-items { display: flex; gap: 12px; }
+    .compare-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: #fff;
+        padding: 6px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .compare-item button {
+        background: none;
+        border: none;
+        color: var(--muted);
+        cursor: pointer;
+        padding: 0;
+        display: flex;
+        align-items: center;
+    }
+    .compare-item button:hover { color: #ef4444; }
+
+    /* COMPARISON MODAL */
+    .compare-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.4);
+        backdrop-filter: blur(10px);
+        z-index: 2000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+    }
+    .compare-modal.active { display: flex; }
+    .compare-content {
+        background: #fff;
+        width: 100%;
+        max-width: 1000px;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+        display: flex;
+        flex-direction: column;
+    }
+    .compare-head {
+        padding: 24px 32px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .compare-grid {
+        display: grid;
+        grid-template-columns: 200px repeat(3, 1fr);
+        padding: 0;
+    }
+    .compare-row {
+        display: contents;
+    }
+    .compare-cell {
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--border);
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+    }
+    .compare-label {
+        font-weight: 700;
+        color: var(--muted);
+        background: #F9FAFB;
+        border-right: 1px solid var(--border);
+    }
+    .compare-artisan-name { font-weight: 700; color: var(--ink); font-size: 16px; margin-bottom: 4px; }
+    .compare-artisan-sub { font-size: 12px; color: var(--muted); }
+  </style>
+@endpush
+
+@section('content')
+
 
 <!-- PAGE HEADER -->
 <div class="page-header">
@@ -145,10 +201,10 @@
       <h1>Browse Artisans</h1>
       <p>Discover skilled craftspeople from across Morocco</p>
     </div>
-    <div class="search-wrap">
+    <form action="{{ route('artisans.index') }}" method="GET" class="search-wrap">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input class="search-input" type="text" placeholder="Search artisans, crafts…" />
-    </div>
+      <input class="search-input" type="text" name="search" value="{{ request('search') }}" placeholder="Search artisans, crafts…" onchange="this.form.submit()" />
+    </form>
   </div>
 </div>
 
@@ -168,114 +224,157 @@
 
 <!-- LAYOUT -->
 <div class="layout">
-
-  <!-- SIDEBAR -->
   <aside class="sidebar">
+    <form action="{{ route('artisans.index') }}" method="GET" id="filters-form">
+        @if(request('search'))
+            <input type="hidden" name="search" value="{{ request('search') }}">
+        @endif
 
-    <div class="fsec">
-      <div class="fsec-head">Location</div>
-      <div class="fopt"><label><input type="checkbox" checked />Fès</label><span class="fopt-count">68</span></div>
-      <div class="fopt"><label><input type="checkbox" />Marrakech</label><span class="fopt-count">54</span></div>
-      <div class="fopt"><label><input type="checkbox" />Casablanca</label><span class="fopt-count">41</span></div>
-      <div class="fopt"><label><input type="checkbox" />Rabat</label><span class="fopt-count">29</span></div>
-      <div class="fopt"><label><input type="checkbox" />Chefchaouen</label><span class="fopt-count">18</span></div>
-      <div class="fopt"><label><input type="checkbox" />Meknès</label><span class="fopt-count">15</span></div>
-      <button class="f-more">+ Show more</button>
-    </div>
+        <div class="fsec">
+          <div class="fsec-head">Location</div>
+          <div style="max-height: 200px; overflow-y: auto;">
+              @foreach($cities as $city)
+                  <div class="fopt">
+                      <label>
+                          <input type="radio" name="city" value="{{ $city }}" 
+                                 {{ request('city') == $city ? 'checked' : '' }} 
+                                 onchange="this.form.submit()" />
+                          {{ $city }}
+                      </label>
+                  </div>
+              @endforeach
+          </div>
+          @if(request('city'))
+              <a href="{{ route('artisans.index', request()->only(['search', 'experience', 'availability', 'min_rating'])) }}" class="f-more" style="text-decoration:none; display:inline-block; text-align:center;">Clear City</a>
+          @endif
+        </div>
 
-    <div class="fsec">
-      <div class="fsec-head">Availability</div>
-      <div class="fopt"><label><input type="checkbox" checked />Available now</label><span class="fopt-count">143</span></div>
-      <div class="fopt"><label><input type="checkbox" />Takes commissions</label><span class="fopt-count">201</span></div>
-      <div class="fopt"><label><input type="checkbox" />Ships worldwide</label><span class="fopt-count">186</span></div>
-    </div>
+        <div class="fsec">
+          <div class="fsec-head">Availability</div>
+          <div class="fopt">
+              <label>
+                  <input type="checkbox" name="availability" value="1" {{ request('availability') ? 'checked' : '' }} onchange="this.form.submit()" />
+                  Available now
+              </label>
+          </div>
+        </div>
 
+        <div class="fsec">
+          <div class="fsec-head">Experience</div>
+          <div class="fopt">
+              <label><input type="radio" name="experience" value="master" {{ request('experience') == 'master' ? 'checked' : '' }} onchange="this.form.submit()" /> Master (15+ yrs)</label>
+          </div>
+          <div class="fopt">
+              <label><input type="radio" name="experience" value="senior" {{ request('experience') == 'senior' ? 'checked' : '' }} onchange="this.form.submit()" /> Senior (8–15 yrs)</label>
+          </div>
+          <div class="fopt">
+              <label><input type="radio" name="experience" value="mid" {{ request('experience') == 'mid' ? 'checked' : '' }} onchange="this.form.submit()" /> Mid (3–8 yrs)</label>
+          </div>
+          <div class="fopt">
+              <label><input type="radio" name="experience" value="emerging" {{ request('experience') == 'emerging' ? 'checked' : '' }} onchange="this.form.submit()" /> Emerging (<3 yrs)</label>
+          </div>
+        </div>
 
+        <div class="fsec">
+            <div class="fsec-head">Min. Rating</div>
+            <div class="fopt">
+                <select name="min_rating" class="sort-select" style="width:100%;" onchange="this.form.submit()">
+                    <option value="">Any Rating</option>
+                    <option value="4.5" {{ request('min_rating') == '4.5' ? 'selected' : '' }}>4.5+ Stars</option>
+                    <option value="4.0" {{ request('min_rating') == '4.0' ? 'selected' : '' }}>4.0+ Stars</option>
+                    <option value="3.5" {{ request('min_rating') == '3.5' ? 'selected' : '' }}>3.5+ Stars</option>
+                </select>
+            </div>
+        </div>
 
-    <div class="fsec">
-      <div class="fsec-head">Experience</div>
-      <div class="fopt"><label><input type="checkbox" />Master (15+ yrs)</label><span class="fopt-count">47</span></div>
-      <div class="fopt"><label><input type="checkbox" />Senior (8–15 yrs)</label><span class="fopt-count">89</span></div>
-      <div class="fopt"><label><input type="checkbox" />Mid (3–8 yrs)</label><span class="fopt-count">74</span></div>
-      <div class="fopt"><label><input type="checkbox" />Emerging (&lt;3 yrs)</label><span class="fopt-count">38</span></div>
-    </div>
-
-    <button class="clear-all">Clear all filters</button>
+        <a href="{{ route('artisans.index') }}" class="clear-all" style="display:block; text-align:center; padding:10px;">Clear all filters</a>
+    </form>
   </aside>
 
   <!-- CONTENT -->
   <div>
-    <div class="sort-row">
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-        <span class="result-count"><strong>248</strong> artisans</span>
-        <div class="active-filters">
-          <span class="af">Fès <button>×</button></span>
-          <span class="af">4+ stars <button>×</button></span>
-          <span class="af">Available now <button>×</button></span>
-        </div>
-      </div>
-      <div class="sort-controls">
-        <select class="sort-select">
-          <option>Most Relevant</option>
-          <option>Highest Rated</option>
-          <option>Most Orders</option>
-          <option>Newest</option>
-        </select>
-       </div>
-    </div>
-
+   
     <div class="agrid">
-      <!-- 1 -->
-      <div class="acard">
-        <div class="acard-cover">
-          <img src="https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=500&q=80" alt="" />
-          <div class="cover-overlay"></div>
-        </div>
-        <div class="acard-body">
-          <div class="acard-name">Fatima Al-Rouissi</div>
-          <div class="acard-craft">Ceramic Master · Fès</div>
-          <div class="acard-meta">
-            <span class="sep">·</span>
-            <span>(187 reviews)</span>
-            <span class="sep">·</span>
-            <span>892 orders</span>
+      @forelse($artisans as $artisan)
+          <div class="acard" onclick="window.location='{{ route('artisan.profile', $artisan->id) }}'">
+            <div class="acard-cover">
+              <img src="{{ asset('images/profile.webp') }}" alt="" />
+              <div class="cover-overlay"></div>
+              <div style="position:absolute; bottom:8px; left:8px; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); color:#fff; font-size:9px; font-weight:600; padding:2px 6px; border-radius:4px; display:flex; align-items:center; gap:4px;">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Mediation Supported
+              </div>
+            </div>
+            <div class="acard-body">
+              <div class="acard-name">{{ $artisan->name }}</div>
+              <div class="acard-craft">{{ $artisan->artisan->service }} · {{ $artisan->city }}</div>
+              <div class="acard-meta">
+                <span class="acard-rating">
+                   <span class="star">★</span> {{ round($artisan->reviews_received_avg_rating ?? 0, 1) ?: 'N/A' }}
+                </span>
+                <span class="sep">·</span>
+                <span>({{ $artisan->reviews_received_count ?? 0 }} reviews)</span>
+                <span class="sep">·</span>
+                <span>{{ $artisan->posts_count ?? 0 }} projects</span>
+              </div>
+              <div class="acard-tags">
+                <span class="tag">{{ $artisan->artisan->service }}</span>
+                @if($artisan->city)
+                    <span class="tag">{{ $artisan->city }}</span>
+                @endif
+                <div style="margin-left: auto; display: flex; gap: 8px;">
+                    <button class="btn-ghost" onclick="event.stopPropagation(); addToCompare({{ json_encode(['id'=>$artisan->id, 'name'=>$artisan->name, 'city'=>$artisan->city, 'rating'=>round($artisan->reviews_received_avg_rating ?? 0, 1), 'projects'=>$artisan->posts_count]) }})" style="padding: 6px 12px; font-size: 11px;">
+                        + Compare
+                    </button>
+                    <button class="btn-view">View Profile</button>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="acard-tags">
-            <span class="tag">Pottery</span><span class="tag">Zellige</span><span class="tag">Custom</span>
-            <button class="btn-view">View Profile</button>
+      @empty
+          <div style="background: var(--surface); padding: 40px; text-align: center; border-radius: 8px; border: 1px solid var(--border);">
+              <h3 style="font-size: 16px; font-weight: 600; color: var(--ink);">No artisans found</h3>
+              <p style="font-size: 13px; color: var(--muted); margin-top: 4px;">Try adjusting your search or filters.</p>
+              <a href="{{ route('artisans.index') }}" class="btn-view" style="display: inline-block; margin-top: 16px; text-decoration: none;">Clear all filters</a>
           </div>
-        </div>
-      </div>
-
+      @endforelse
     </div>
 
-    <!-- Pagination -->
-    <div class="pagination">
-      <button class="pg wide">← Prev</button>
-      <button class="pg active">1</button>
-      <button class="pg">2</button>
-      <button class="pg">3</button>
-      <span style="font-size:13px;color:var(--muted);padding:0 2px;">…</span>
-      <button class="pg">12</button>
-      <button class="pg wide">Next →</button>
     </div>
   </div>
 
-</div>
+  <!-- Comparison Tray -->
+  <div id="compareTray" class="compare-tray">
+    <div style="padding-right: 16px; border-right: 1px solid var(--border);">
+        <p style="font-size: 11px; font-weight: 700; color: var(--brand); text-transform: uppercase;">Comparison Tray</p>
+        <p style="font-size: 12px; color: var(--muted);" id="compareCount">0 artisans selected</p>
+    </div>
+    <div class="compare-items" id="compareItems">
+        <!-- JS rendered -->
+    </div>
+    <button class="btn-view" onclick="openCompareModal()">Compare Now</button>
+  </div>
 
-<!-- FOOTER -->
-<footer style="background:var(--ink);border-top:1px solid #27272A;">
-  <div style="max-width:1280px;margin:0 auto;padding:20px 32px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;">
-    <span style="font-size:15px;font-weight:700;color:var(--brand-mid);">m3alem</span>
-    <p style="font-size:12px;color:#52525B;">© 2025 m3alem · Connect with Moroccan Artisans. All rights reserved.</p>
-    <div style="display:flex;gap:18px;">
-      <a href="#" style="font-size:12px;color:#52525B;text-decoration:none;">Privacy</a>
-      <a href="#" style="font-size:12px;color:#52525B;text-decoration:none;">Terms</a>
-      <a href="#" style="font-size:12px;color:#52525B;text-decoration:none;">Support</a>
+  <!-- Comparison Modal -->
+  <div id="compareModal" class="compare-modal" onclick="closeCompareModal()">
+    <div class="compare-content" onclick="event.stopPropagation()">
+        <div class="compare-head">
+            <h2 class="font-bold text-xl">Artisan Comparison</h2>
+            <button onclick="closeCompareModal()" class="text-gray-400 hover:text-gray-600">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="compare-grid" id="compareGrid">
+            <!-- JS populated -->
+        </div>
+        <div style="padding: 20px 32px; background: #F9FAFB; text-align: right;">
+            <button class="btn-ghost" onclick="closeCompareModal()">Close Comparison</button>
+        </div>
     </div>
   </div>
-</footer>
+@endsection
 
+@push('scripts')
 <script>
   document.querySelectorAll('.cat-tab').forEach(t => {
     t.addEventListener('click', () => {
@@ -298,6 +397,96 @@
       b.classList.add('active');
     });
   });
+
+  // COMPARISON LOGIC
+  let compareList = [];
+
+  function addToCompare(artisan) {
+    if (compareList.length >= 3) {
+        alert("You can compare up to 3 artisans at once.");
+        return;
+    }
+    if (compareList.find(a => a.id === artisan.id)) {
+        alert("This artisan is already in your comparison list.");
+        return;
+    }
+    compareList.push(artisan);
+    updateTray();
+  }
+
+  function removeFromCompare(id) {
+    compareList = compareList.filter(a => a.id !== id);
+    updateTray();
+  }
+
+  function updateTray() {
+    const tray = document.getElementById('compareTray');
+    const itemsContainer = document.getElementById('compareItems');
+    const countText = document.getElementById('compareCount');
+
+    if (compareList.length > 0) {
+        tray.classList.add('active');
+    } else {
+        tray.classList.remove('active');
+    }
+
+    countText.innerText = `${compareList.length} artisan${compareList.length > 1 ? 's' : ''} selected`;
+    
+    itemsContainer.innerHTML = compareList.map(a => `
+        <div class="compare-item">
+            <span>${a.name}</span>
+            <button onclick="removeFromCompare(${a.id})">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+    `).join('');
+  }
+
+  function openCompareModal() {
+    const modal = document.getElementById('compareModal');
+    const grid = document.getElementById('compareGrid');
+    
+    if (compareList.length === 0) return;
+
+    modal.classList.add('active');
+
+    let html = `
+        <div class="compare-row">
+            <div class="compare-cell compare-label">Artisan</div>
+            ${compareList.map(a => `
+                <div class="compare-cell flex-col items-start">
+                    <div class="compare-artisan-name">${a.name}</div>
+                    <div class="compare-artisan-sub">#${a.id}</div>
+                </div>
+            `).join('')}
+            ${Array(3 - compareList.length).fill('<div class="compare-cell text-gray-300 italic">Empty Slot</div>').join('')}
+        </div>
+        <div class="compare-row">
+            <div class="compare-cell compare-label">City</div>
+            ${compareList.map(a => `<div class="compare-cell">${a.city}</div>`).join('')}
+            ${Array(3 - compareList.length).fill('<div class="compare-cell"></div>').join('')}
+        </div>
+        <div class="compare-row">
+            <div class="compare-cell compare-label">Rating</div>
+            ${compareList.map(a => `<div class="compare-cell"><span style="color:#F59E0B; margin-right:4px;">★</span> ${a.rating}</div>`).join('')}
+            ${Array(3 - compareList.length).fill('<div class="compare-cell"></div>').join('')}
+        </div>
+        <div class="compare-row">
+            <div class="compare-cell compare-label">Portfolio</div>
+            ${compareList.map(a => `<div class="compare-cell">${a.projects} Projects</div>`).join('')}
+            ${Array(3 - compareList.length).fill('<div class="compare-cell"></div>').join('')}
+        </div>
+        <div class="compare-row">
+            <div class="compare-cell compare-label">Actions</div>
+            ${compareList.map(a => `<div class="compare-cell"><a href="/artisan/${a.id}" class="text-brand font-bold text-xs">View Profile</a></div>`).join('')}
+            ${Array(3 - compareList.length).fill('<div class="compare-cell"></div>').join('')}
+        </div>
+    `;
+    grid.innerHTML = html;
+  }
+
+  function closeCompareModal() {
+    document.getElementById('compareModal').classList.remove('active');
+  }
 </script>
-</body>
-</html>
+@endpush

@@ -305,6 +305,36 @@
           <button class="btn-primary" style="width:100%;">Request Consultation</button>
         </div>
 
+        @auth
+            @if(Auth::user()->role === 'client')
+                <div class="card p-5" style="border: 1px solid var(--brand); background: var(--brand-pale);">
+                    <h3 style="font-size:14px;font-weight:600;margin-bottom:4px;color:var(--brand-dark);">Service de Médiation</h3>
+                    <p style="font-size:12px;color:var(--ink-2);margin-bottom:14px;">Secure delivery & quality assurance by a Maalem mediator.</p>
+                    
+                    <form action="{{ route('deliveries.store') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="artisan_id" value="{{ $artisanUser->artisan->id }}">
+                        
+                        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px;">
+                            <div>
+                                <label>Delivery Address</label>
+                                <input type="text" name="adresse" class="form-field" placeholder="Full address..." required />
+                            </div>
+                            <div>
+                                <label>Preferred Date</label>
+                                <input type="date" name="deliveryDate" class="form-field" required />
+                            </div>
+                            <div>
+                                <label>Project Description</label>
+                                <textarea name="description" class="form-field" style="height:60px;" placeholder="What do you need handled?" required></textarea>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-primary" style="width:100%;background:var(--brand-dark);">Request Secure Delivery</button>
+                    </form>
+                </div>
+            @endif
+        @endauth
+
         <div class="card p-5">
           <h3 style="font-size:14px;font-weight:600;margin-bottom:14px;">Studio Details</h3>
           <div style="display:flex;flex-direction:column;gap:12px;">

@@ -17,11 +17,11 @@ class ArtisanProfileController extends Controller
 
     public function index(Request $request)
     {
-        $filters = $request->only(['search', 'city']);
+        $filters = $request->only(['search', 'city', 'experience', 'min_rating', 'availability']);
         $artisans = $this->artisanService->getArtisans($filters);
         $cities = $this->artisanService->getCities();
 
-        return view('artisans.index', compact('artisans', 'cities'));
+        return view('artisans.index', compact('artisans', 'cities', 'filters'));
     }
 
     public function show($id)
@@ -76,6 +76,11 @@ class ArtisanProfileController extends Controller
 
         $user->load(['artisan', 'posts', 'reviewsReceived.user']);
 
-        return view('artisan.dashboard', ['artisanUser' => $user]);
+        $deliveryTasks = $user->artisan->deliveryRequests()->with(['client.user', 'mediateur.user'])->latest()->get();
+
+        return view('artisan.dashboard', [
+            'artisanUser' => $user,
+            'deliveryTasks' => $deliveryTasks
+        ]);
     }
 }
