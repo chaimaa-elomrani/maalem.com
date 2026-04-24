@@ -20,4 +20,9 @@ class Mediateur extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function deliveryRequests()
+    {
+        return $this->hasMany(DeliveryRequest::class);
+    }
 }
