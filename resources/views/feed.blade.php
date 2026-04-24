@@ -1,12 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>m3alem — Artisan Feed</title>
-  <meta name="csrf-token" content="{{ csrf_token() }}">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+@extends('layouts.main')
+
+@section('title', 'm3alem — Artisan Feed')
+
+@push('styles')
   <style>
     :root {
       --terracotta: #C4622D;
@@ -20,17 +16,7 @@
       --tile-blue: #2E5E8E;
       --gold: #C9A84C;
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background-color: var(--cream);
-      color: var(--ink);
-    }
     .display-font { font-family: 'Playfair Display', serif; }
-
-    .header-bg {
-      background-color: var(--ink);
-    }
 
     .craft-card {
       transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
@@ -194,7 +180,7 @@
       inset: 0;
       background: rgba(28,22,18,0.5);
       backdrop-filter: blur(6px);
-      z-index: 999;
+      z-index: 2000;
       display: none;
       align-items: center;
       justify-content: center;
@@ -304,35 +290,6 @@
       opacity: 0.6;
       margin-top: 4px;
     }
-    .comment-empty {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 20px;
-      text-align: center;
-    }
-    .comment-empty svg {
-      width: 56px;
-      height: 56px;
-      color: var(--sand-dark);
-      margin-bottom: 16px;
-    }
-    .comment-empty p {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--ink);
-      margin-bottom: 4px;
-    }
-    .comment-empty span {
-      font-size: 13px;
-      color: var(--ink-muted);
-    }
-    .comment-modal-footer {
-      padding: 14px 22px;
-      border-top: 1px solid var(--sand-dark);
-      flex-shrink: 0;
-    }
     .comment-form {
       display: flex;
       align-items: center;
@@ -366,50 +323,11 @@
       cursor: pointer;
       transition: background 0.15s, transform 0.1s;
     }
-    .comment-submit:hover {
-      background: var(--terracotta-dark);
-    }
-    .comment-submit:active {
-      transform: scale(0.96);
-    }
   </style>
-</head>
-<body>
+@endpush
 
-<header class="header-bg sticky top-0 z-50 shadow-lg">
-  <div class="max-w-[1440px] mx-auto px-6 flex items-center justify-between h-16">
+@section('content')
 
-    <!-- Logo -->
-    <a href="{{ url('/') }}" class="display-font text-2xl font-bold tracking-tight" style="color: var(--terracotta-light);">
-      m3alem
-    </a>
-
-    <nav class="hidden md:flex items-center gap-8">
-      <a href="{{ route('feed') }}" class="nav-link-active text-sm font-medium" style="color:white;">Feed</a>
-      <a href="{{ route('artisans.index') }}" class="text-sm font-medium opacity-60 hover:opacity-100 transition-opacity" style="color:white;">Explore</a>
-      <a href="#" class="text-sm font-medium opacity-60 hover:opacity-100 transition-opacity" style="color:white;">Messages</a>
-      <a href="#" class="text-sm font-medium opacity-60 hover:opacity-100 transition-opacity" style="color:white;">Saved</a>
-    </nav>
-
-    <div class="flex items-center gap-3">
-      @auth
-      <button class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold avatar-ring" style="background:var(--terracotta);color:white;">
-        {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
-      </button>
-      <form method="POST" action="{{ route('logout') }}">
-          @csrf
-          <button type="submit" class="text-xs font-semibold px-4 py-2 rounded-full border transition-all hover:bg-white hover:text-gray-900" style="border-color:rgba(255,255,255,0.3);color:white;">
-            Logout
-          </button>
-      </form>
-      @else
-      <a href="{{ route('login') }}" class="text-xs font-semibold px-4 py-2 rounded-full border transition-all hover:bg-white hover:text-gray-900" style="border-color:rgba(255,255,255,0.3);color:white;">
-        Login
-      </a>
-      @endauth
-    </div>
-  </div>
-</header>
 
 
 <div class="max-w-[1440px] mx-auto px-6 py-8 grid grid-cols-12 gap-6">
@@ -617,6 +535,75 @@
       document.body.style.overflow = '';
     }
   });
+
+  // API Config
+  const CONFIG = {
+    auth: @json(auth()->check()),
+    loginUrl: "{{ route('login') }}",
+    placeholderImages: [
+      'Artisan Woman Weaving Traditional Moroccan Baskets.jpeg',
+      'Broderie de Fez.jpeg',
+      'L’Artisanat Marocain _ Un Héritage de Savoir-Faire Authentique.jpeg',
+      'Pottery Painting, Morocco.jpeg',
+      'Tapis Marocaine.jpeg',
+      'artisanat au maroc - Page 7.jpeg',
+      'image 26.png', 'image 34.png', 'image 35.png', 'image 36.png', 'image 37.png', 
+      'image 38.png', 'image 39.png', 'image 40.png', 'image 41.png', 'image 42.png',
+      'jpeg(1)',
+      'Кожевенные красильни Марракеша.jpeg',
+      'Разноцветье Марокко рядом.jpeg'
+    ],
+    assetImages: "{{ asset('images/') }}/",
+    assetStorage: "{{ asset('storage/') }}/",
+  };
+
+  let currentPage = 1;
+  let currentSearch = '{{ request('search', '') }}';
+  let currentCategory = '{{ request('category', '') }}';
+  let isLoading = false;
+  let hasMore = true;
+
+  const container = document.getElementById('posts-container');
+  const loader = document.getElementById('feed-loader');
+  const emptyState = document.getElementById('empty-state');
+  const clearFiltersBtn = document.getElementById('clear-filters-container');
+
+@endsection
+
+@push('scripts')
+<script>
+  document.querySelectorAll('.image-scroller').forEach(scroller => {
+    scroller.addEventListener('scroll', () => {
+      const index = Math.round(scroller.scrollLeft / scroller.clientWidth) + 1;
+      const counter = scroller.parentElement.querySelector('.absolute.bottom-4.right-4');
+      if (counter) {
+        const total = scroller.querySelectorAll('.scroller-image').length;
+        counter.innerText = `${index} / ${total}`;
+      }
+    });
+  });
+
+  function openCommentModal(postId) {
+    const modal = document.getElementById('comment-modal-' + postId);
+    if (modal) {
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  function closeCommentModal(event, postId) {
+    if (event.target === event.currentTarget) {
+      closeCommentModalDirect(postId);
+    }
+  }
+
+  function closeCommentModalDirect(postId) {
+    const modal = document.getElementById('comment-modal-' + postId);
+    if (modal) {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  }
 
   // API Config
   const CONFIG = {
@@ -913,28 +900,6 @@
     loadPosts(true);
   }
 
-  function openCommentModal(postId) {
-    const modal = document.getElementById('comment-modal-' + postId);
-    if (modal) {
-      modal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-  }
-
-  function closeCommentModal(event, postId) {
-    if (event.target === event.currentTarget) {
-      closeCommentModalDirect(postId);
-    }
-  }
-
-  function closeCommentModalDirect(postId) {
-    const modal = document.getElementById('comment-modal-' + postId);
-    if (modal) {
-      modal.classList.remove('active');
-      document.body.style.overflow = '';
-    }
-  }
-
   function toggleLike(postId) {
     const icon = document.getElementById('like-icon-' + postId);
     const countSpan = document.getElementById('like-count-' + postId);
@@ -980,6 +945,4 @@
     }
   });
 </script>
-
-</body>
-</html>
+@endpush

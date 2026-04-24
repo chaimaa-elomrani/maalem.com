@@ -1,39 +1,145 @@
-<x-guest-layout>
-    <form method="POST" action="{{ route('password.store') }}">
-        @csrf
+@extends('layouts.main')
 
-        <!-- Password Reset Token -->
-        <input type="hidden" name="token" value="{{ $request->route('token') }}">
+@php $minimal = true; @endphp
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email', $request->email)" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+@section('title', 'Maalem – Reset Password')
+
+@push('styles')
+  <style>
+    /* Mosaic background grid */
+    .mosaic {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      z-index: 0;
+    }
+    .mosaic-cell {
+      background-size: cover;
+      background-position: center;
+      filter: brightness(0.4) saturate(0.8);
+    }
+    .cell-1 { background-image: url('../images/image 26.png'); }
+    .cell-2 { background-image: url('../images/image 42.png'); }
+    .cell-3 { background-image: url('../images/image 34.png'); }
+    .cell-4 { background-image: url('../images/image 35.png'); }
+    .cell-5 { background-image: url('../images/image 36.png'); }
+    .cell-6 { background-image: url('../images/image 37.png'); }
+    .cell-7 { background-image: url('./images/image 38.png'); }
+    .cell-8 { background-image: url('./images/image 39.png'); }
+    .cell-9 { background-image: url('./images/image 40.png'); }
+    .cell-10 { background-image: url('./images/Tapis Marocaine.jpeg'); }
+    .cell-11 { background-image: url('./images/Artisan Woman Weaving Traditional Moroccan Baskets.jpeg'); }
+    .cell-12 { background-image: url('./images/L’Artisanat Marocain _ Un Héritage de Savoir-Faire Authentique.jpeg'); }
+    .cell-13 { background-image: url('./images/Tapis Marocaine.jpeg'); }
+
+    /* Card */
+    .auth-card {
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 32px 80px rgba(0,0,0,0.35);
+      border-radius: 16px;
+      padding: 32px;
+      width: 100%;
+      max-width: 450px;
+      animation: slideUp 0.5s ease;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+    .input-field:focus {
+      outline: none;
+      border-color: #e8601c;
+      box-shadow: 0 0 0 3px rgba(232, 96, 28, 0.15);
+    }
+
+    .btn-submit {
+      background: linear-gradient(135deg, #e8601c 0%, #c94a10 100%);
+      color: #fff;
+      padding: 12px;
+      border-radius: 999px;
+      font-weight: 600;
+      text-align: center;
+      width: 100%;
+      transition: opacity 0.2s;
+    }
+    .btn-submit:hover { opacity: 0.9; }
+
+    .auth-bg-overlay {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 1;
+    }
+    .auth-container {
+      position: relative; z-index: 10;
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+    }
+  </style>
+@endpush
+
+@section('content')
+<div class="relative min-h-screen overflow-hidden">
+    <div class="mosaic">
+        @for($i=1; $i<=13; $i++)
+            <div class="mosaic-cell cell-{{$i}}"></div>
+        @endfor
+    </div>
+    <div class="auth-bg-overlay"></div>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="text-center mb-6">
+                <h1 class="text-xl font-bold text-gray-900 display-font">Reset Password</h1>
+                <p class="text-xs text-gray-500 mt-1 body-font">Set your new secure password</p>
+            </div>
+
+            <form method="POST" action="{{ route('password.store') }}" class="space-y-4">
+                @csrf
+                <input type="hidden" name="token" value="{{ $request->route('token') }}">
+
+                <!-- Email -->
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1.5 body-font">Email Address</label>
+                    <input type="email" name="email" value="{{ old('email', $request->email) }}" required autofocus autocomplete="username" class="input-field body-font" />
+                    <x-input-error :messages="$errors->get('email')" class="mt-1 text-xs text-red-500" />
+                </div>
+
+                <!-- Password -->
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1.5 body-font">New Password</label>
+                    <input type="password" name="password" required autocomplete="new-password" class="input-field body-font" placeholder="••••••••" />
+                    <x-input-error :messages="$errors->get('password')" class="mt-1 text-xs text-red-500" />
+                </div>
+
+                <!-- Confirm Password -->
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1.5 body-font">Confirm New Password</label>
+                    <input type="password" name="password_confirmation" required autocomplete="new-password" class="input-field body-font" placeholder="••••••••" />
+                    <x-input-error :messages="$errors->get('password_confirmation')" class="mt-1 text-xs text-red-500" />
+                </div>
+
+                <div class="mt-6">
+                    <button type="submit" class="btn-submit body-font">
+                        {{ __('Reset Password') }}
+                    </button>
+                </div>
+            </form>
         </div>
-
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-            <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                                type="password"
-                                name="password_confirmation" required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Reset Password') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+    </div>
+</div>
+@endsection

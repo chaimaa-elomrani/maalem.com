@@ -1,31 +1,27 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>m3alem – Discover Authentic Moroccan Craftsmanship</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+@extends('layouts.main')
+
+@section('title', 'm3alem – Discover Authentic Moroccan Craftsmanship')
+
+@push('styles')
   <style>
     :root {
       --orange: #C8641E;
       --orange-light: #E07840;
       --orange-dark: #A04E10;
-      --cream: #FAF8F5;
+      --sand: #F5ECD7;
+      --sand-dark: #E8D9BE;
+      /* --ink is already in main.blade.php */
+      --ink-muted: #6B5B4E;
+      --cream: #FAF6EF;
       --cream2: #F4F0EB;
       --text: #1A1410;
       --muted: #7A6A5A;
     }
 
-    * { box-sizing: border-box; }
-    body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--text); margin: 0; }
     h1, h2, h3 { font-family: 'Playfair Display', serif; }
 
-    /* Navbar */
-    nav { background: #fff; border-bottom: 1px solid #f0ece7; position: sticky; top: 0; z-index: 100; }
-
     /* Buttons */
-    .btn-primary {
+    .btn-primary-welcome {
       background: var(--orange);
       color: #fff;
       border-radius: 999px;
@@ -36,7 +32,7 @@
       cursor: pointer;
       transition: background 0.2s, transform 0.15s;
     }
-    .btn-primary:hover { background: var(--orange-dark); transform: translateY(-1px); color: #fff;}
+    .btn-primary-welcome:hover { background: var(--orange-dark); transform: translateY(-1px); color: #fff;}
 
     .btn-outline {
       background: transparent;
@@ -164,9 +160,6 @@
       background: rgba(15, 10, 5, 0.78);
     }
 
-    /* Footer */
-    footer { background: #0F0A05; color: #aaa; }
-
     /* How it works step */
     .step-circle {
       width: 52px; height: 52px;
@@ -197,34 +190,9 @@
     /* Avatar circle */
     .avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: #fff; }
   </style>
-</head>
-<body>
+@endpush
 
-<!-- ───────────────── NAVBAR ───────────────── -->
-<nav class="py-4">
-  <div class="max-w-6xl mx-auto px-6 flex items-center justify-between">
-    <a href="#" class="text-orange-700 font-bold text-xl hover:text-orange-800" style="font-family:'Playfair Display',serif;">m3alem</a>
-    <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
-      <a href="#features" class="hover:text-orange-600 transition-colors">Features</a>
-      <a href="#process" class="hover:text-orange-600 transition-colors">Process</a>
-      <a href="#pricing" class="hover:text-orange-600 transition-colors">Pricing</a>
-      <a href="#faq" class="hover:text-orange-600 transition-colors">FAQ</a>
-    </div>
-    
-    @if (Route::has('login'))
-        <div class="flex items-center gap-4">
-            @auth
-                <a href="{{ url('/dashboard') }}" class="btn-primary text-sm inline-block no-underline">Dashboard</a>
-            @else
-                <a href="{{ route('login') }}" class="text-sm font-medium text-gray-600 hover:text-orange-600 hidden md:block">Log in</a>
-                @if (Route::has('register'))
-                    <a href="{{ route('register') }}" class="btn-primary text-sm inline-block no-underline">Get Started</a>
-                @endif
-            @endauth
-        </div>
-    @endif
-  </div>
-</nav>
+@section('content')
 
 <!-- ───────────────── HERO ───────────────── -->
 <section class="hero py-20 px-6" id="features">
@@ -240,7 +208,7 @@
         Connect directly with skilled artisans and explore generations of traditional expertise. From pottery to textiles, find the perfect handcrafted pieces that tell stories.
       </p>
       <div class="flex items-center gap-4">
-        <a href="{{ route('register') }}" class="btn-primary inline-block no-underline">Explore Artisans</a>
+        <a href="{{ route('register') }}" class="btn-primary-welcome inline-block no-underline">Explore Artisans</a>
         <a href="#process" class="btn-outline inline-block text-center no-underline">Learn More</a>
       </div>
     </div>
@@ -508,7 +476,7 @@
         <div class="check-item"><span class="check-icon">✓</span> Send messages</div>
         <div class="check-item"><span class="check-icon">✓</span> Place orders</div>
         <div class="check-item"><span class="check-icon">✓</span> Buyer protection (2%)</div>
-        <a href="{{ route('register') }}" class="btn-primary w-full mt-6 block text-center no-underline">Start Browsing</a>
+        <a href="{{ route('register') }}" class="btn-primary-welcome w-full mt-6 block text-center no-underline">Start Browsing</a>
       </div>
       <!-- Professional (featured) -->
       <div class="pricing-card featured">
@@ -520,7 +488,7 @@
         <div class="check-item"><span class="check-icon">✓</span> Portfolio showcase</div>
         <div class="check-item"><span class="check-icon">✓</span> Order management</div>
         <div class="check-item"><span class="check-icon">✓</span> Analytics dashboard</div>
-        <a href="{{ route('register') }}" class="btn-primary w-full mt-6 block text-center no-underline">Register as Artisan</a>
+        <a href="{{ route('register') }}" class="btn-primary-welcome w-full mt-6 block text-center no-underline">Register as Artisan</a>
       </div>
       <!-- Enterprise -->
       <div class="pricing-card">
@@ -589,67 +557,14 @@
   <div class="relative z-10">
     <h2 class="text-4xl md:text-5xl text-white mb-4">Join the Moroccan Artisan Revolution</h2>
     <p class="text-gray-300 text-sm mb-8 max-w-lg mx-auto leading-relaxed">Whether you're a collector seeking authentic handcrafted pieces or an artisan ready to share your work with the world, m3alem is your platform.</p>
-    <a href="{{ route('register') }}" class="btn-primary text-base px-8 py-3 inline-block no-underline">Create Account Today</a>
+    <a href="{{ route('register') }}" class="btn-primary-welcome text-base px-8 py-3 inline-block no-underline">Create Account Today</a>
   </div>
 </section>
 
 <!-- ───────────────── FOOTER ───────────────── -->
-<footer class="py-16 px-6">
-  <div class="max-w-6xl mx-auto">
-    <div class="grid grid-cols-2 md:grid-cols-5 gap-10 mb-12">
-      <!-- Brand -->
-      <div class="col-span-2 md:col-span-1">
-        <div class="text-orange-500 font-bold text-xl mb-3" style="font-family:'Playfair Display',serif">m3alem</div>
-        <p class="text-xs text-gray-500 leading-relaxed">Connecting the world with the timeless artistry of Moroccan craftspeople.</p>
-      </div>
-      <!-- Platform -->
-      <div>
-        <h4 class="text-white text-sm font-semibold mb-4">Platform</h4>
-        <ul class="space-y-2 text-xs text-gray-500">
-          <li><a href="#features" class="hover:text-orange-400 transition-colors">Features</a></li>
-          <li><a href="#pricing" class="hover:text-orange-400 transition-colors">Pricing</a></li>
-          <li><a href="#process" class="hover:text-orange-400 transition-colors">Process</a></li>
-          <li><a href="#faq" class="hover:text-orange-400 transition-colors">FAQ</a></li>
-        </ul>
-      </div>
-      <!-- For Buyers -->
-      <div>
-        <h4 class="text-white text-sm font-semibold mb-4">For Buyers</h4>
-        <ul class="space-y-2 text-xs text-gray-500">
-          <li><a href="{{ route('register') }}" class="hover:text-orange-400 transition-colors">Browse Artisans</a></li>
-          <li><a href="#process" class="hover:text-orange-400 transition-colors">How to Order</a></li>
-          <li><a href="#" class="hover:text-orange-400 transition-colors">Buyer Protection</a></li>
-          <li><a href="#" class="hover:text-orange-400 transition-colors">Custom Orders</a></li>
-        </ul>
-      </div>
-      <!-- For Artisans -->
-      <div>
-        <h4 class="text-white text-sm font-semibold mb-4">For Artisans</h4>
-        <ul class="space-y-2 text-xs text-gray-500">
-          <li><a href="{{ route('register') }}" class="hover:text-orange-400 transition-colors">Register</a></li>
-          <li><a href="#" class="hover:text-orange-400 transition-colors">Seller Guide</a></li>
-          <li><a href="#" class="hover:text-orange-400 transition-colors">Payments</a></li>
-          <li><a href="#" class="hover:text-orange-400 transition-colors">Success Stories</a></li>
-        </ul>
-      </div>
-      <!-- Company -->
-      <div>
-        <h4 class="text-white text-sm font-semibold mb-4">Company</h4>
-        <ul class="space-y-2 text-xs text-gray-500">
-          <li><a href="#" class="hover:text-orange-400 transition-colors">About Us</a></li>
-          <li><a href="#" class="hover:text-orange-400 transition-colors">Blog</a></li>
-          <li><a href="#" class="hover:text-orange-400 transition-colors">Privacy Policy</a></li>
-          <li><a href="#" class="hover:text-orange-400 transition-colors">Terms of Service</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-      <p class="text-xs text-gray-600">© 2026 m3alem. All rights reserved.</p>
-      <p class="text-xs text-gray-600">Celebrating Moroccan craftsmanship worldwide.</p>
-    </div>
-  </div>
-</footer>
+@endsection
 
+@push('scripts')
 <script>
   // FAQ toggle
   function toggleFaq(btn) {
@@ -679,5 +594,4 @@
     });
   });
 </script>
-</body>
-</html>
+@endpush

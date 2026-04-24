@@ -1,24 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Create New Listing — m3alem</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+@extends('layouts.main')
+
+@section('title', 'Create New Listing — m3alem')
+
+@push('styles')
   <style>
-    :root {
-      --terracotta: #C4622D;
-      --terracotta-dark: #A04E22;
-      --sand: #F5ECD7;
-      --sand-dark: #E8D9BE;
-      --ink: #1C1612;
-      --ink-muted: #6B5B4E;
-      --cream: #FAF6EF;
-    }
-    body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--ink); }
-    .display-font { font-family: 'Playfair Display', serif; }
-    
     .form-input {
       width: 100%;
       padding: 12px 16px;
@@ -51,20 +36,24 @@
       font-size: 15px;
       transition: all 0.2s ease;
       width: 100%;
+      border: none;
+      cursor: pointer;
     }
     .btn-submit:hover {
       background: var(--terracotta-dark);
       transform: translateY(-1px);
     }
   </style>
-</head>
-<body class="min-h-screen py-12 px-4">
+@endpush
 
+@section('content')
+
+<div class="min-h-screen py-12 px-4">
   <div class="max-w-2xl mx-auto">
     
     <header class="mb-10 flex items-center justify-between">
       <div>
-        <a href="{{ route('artisan.dashboard') }}" class="text-xs font-semibold uppercase tracking-widest text-terracotta hover:opacity-80 transition-opacity">
+        <a href="{{ route('dashboard') }}" class="text-xs font-semibold uppercase tracking-widest text-terracotta hover:opacity-80 transition-opacity">
           ← Back to Dashboard
         </a>
         <h1 class="display-font text-3xl font-bold mt-2">Create a New Listing</h1>
@@ -134,7 +123,4 @@
 
     </form>
 
-  </div>
-
-</body>
-</html>
+@endsection
