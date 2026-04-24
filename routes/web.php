@@ -5,19 +5,18 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ArtisanProfileController;
 use App\Http\Controllers\CommentController;
-
-
+use App\Http\Controllers\ClientController;
+use App\Http\Controllers\DeliveryController;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('home');
 
-Route::get('/dashboard', function () {
-    if (auth()->user()->role === 'artisan') {
-        return redirect()->route('artisan.dashboard');
-    }
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+
+
+Route::get('/dashboard', [ClientController::class, 'dashboard'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -33,6 +32,12 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
     Route::post('/posts/{post}/like', [PostController::class, 'toggleLike'])->name('posts.like');
+
+    // Delivery & Mediation
+    Route::post('/deliveries', [DeliveryController::class, 'store'])->name('deliveries.store');
+    Route::get('/mediateur/dashboard', [DeliveryController::class, 'mediatorDashboard'])->name('mediateur.dashboard');
+    Route::post('/deliveries/{deliveryRequest}/accept', [DeliveryController::class, 'accept'])->name('deliveries.accept');
+    Route::patch('/deliveries/{deliveryRequest}/status', [DeliveryController::class, 'updateStatus'])->name('deliveries.update-status');
 });
 
 Route::get('/artisans', [ArtisanProfileController::class, 'index'])->name('artisans.index');
