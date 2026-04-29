@@ -11,7 +11,6 @@
     .artisan-sidebar { position: sticky; top: 64px; height: calc(100vh - 64px); overflow-y: auto; padding: 24px 0; display: flex; flex-direction: column; gap: 4px; border-right: 1px solid var(--border); padding-right: 20px; }
     .artisan-sidebar::-webkit-scrollbar { display: none; }
 
-    .sidebar-user-card { padding: 12px 16px 16px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
     .sidebar-avatar { width:44px; height:44px; border-radius:8px; background:var(--brand); color:#fff; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:700; margin-bottom:8px; }
     .sidebar-user-name { font-size:13px; font-weight:600; color:var(--ink); }
     .sidebar-user-sub { font-size:11px; color:var(--muted); }
@@ -32,9 +31,9 @@
     .badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 4px; }
     .badge-green { background: #ECFDF5; color: #065F46; }
     
-    .pcard { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: #fff; transition: box-shadow .18s; }
-    .pcard:hover { box-shadow: 0 4px 14px rgba(0,0,0,.08); }
-    .pcard img { width: 100%; height: 120px; object-fit: cover; display: block; }
+    .pcard { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: #fff; transition: transform .2s, box-shadow .2s; display: flex; flex-direction: column; }
+    .pcard:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,.06); }
+    .pcard img { width: 100%; height: 220px; object-fit: cover; display: block; border-bottom: 1px solid var(--border); }
 
     .btn-primary-artisan { background: var(--brand); color: #fff; font-size: 13px; font-weight: 600; padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; transition: background .15s; text-decoration: none; display: inline-block; }
     .btn-primary-artisan:hover { background: var(--brand-dark); }
@@ -57,21 +56,13 @@
 @section('content')
 <div class="artisan-shell">
   <aside class="artisan-sidebar">
-    <div class="sidebar-user-card">
-      <div class="sidebar-avatar">
-        {{ strtoupper(substr($artisanUser->name, 0, 1)) }}
-      </div>
-      <p class="sidebar-user-name">{{ $artisanUser->name }}</p>
-      <p class="sidebar-user-sub">{{ $artisanUser->artisan->service ?? 'Artisan' }}</p>
-      <span class="badge badge-green" style="margin-top:5px;">Active</span>
-    </div>
+ 
 
     <nav style="flex: 1;">
       <a href="{{ route('artisan.dashboard') }}" class="nav-item active">Overview</a>
       <a href="{{ route('artisan.profile', $artisanUser->id) }}" class="nav-item" target="_blank">Public Profile</a>
       <a href="{{ route('posts.create') }}" class="nav-item">New Listing</a>
       <a href="#" class="nav-item">Reviews</a>
-      <a href="#" class="nav-item">Messages</a>
       <a href="{{ route('artisan.setup') }}" class="nav-item">Edit Profile</a>
     </nav>
 
@@ -84,6 +75,13 @@
   </aside>
 
   <main class="artisan-main">
+   
+    @if(session('error'))
+      <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:10px 16px;font-size:13px;font-weight:500;color:#DC2626;margin-bottom:16px;">
+        {{ session('error') }}
+      </div>
+    @endif
+
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; flex-wrap:wrap; gap:12px;">
       <div>
         <h1 style="font-size:20px; font-weight:700;">Welcome back, {{ $artisanUser->name }}</h1>
@@ -93,7 +91,7 @@
     </div>
 
     @php
-      $avgRating    = round($artisanUser->reviewsReceived->avg('rating') ?? 0, 1);
+      $avgRating    = round($artisanUser->reviewsReceived->avg('note') ?? 0, 1);
       $reviewsCount = $artisanUser->reviewsReceived->count();
       $postsCount   = $artisanUser->posts->count();
     @endphp
@@ -132,7 +130,7 @@
               <a href="{{ route('posts.create') }}" class="btn-primary-artisan" style="margin-top:12px; padding:8px 20px;">Create First Listing</a>
             </div>
           @else
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:10px;">
+            <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:20px;">
               @foreach($artisanUser->posts->take(6) as $post)
               <div class="pcard">
                 @php
@@ -148,6 +146,14 @@
                 <div style="padding:10px;">
                   <p style="font-size:12px; font-weight:600; margin-bottom:2px; color:var(--ink);">{{ Str::limit($post->title, 22) }}</p>
                   <p style="font-size:11px; color:var(--muted);">{{ $post->category ?? 'Craft' }}</p>
+                  <div style="display:flex; align-items:center; gap:10px; margin-top:12px;">
+                    <a href="{{ route('posts.edit', $post->id) }}" style="font-size:11px; font-weight:600; color:var(--brand); text-decoration:none; background:var(--brand-pale); padding:4px 10px; border-radius:6px; transition:all 0.2s;">Update</a>
+                    <form action="{{ route('posts.destroy', $post->id) }}" method="POST" onsubmit="return confirm('Delete this listing?')" style="margin:0;">
+                      @csrf
+                      @method('DELETE')
+                      <button type="submit" style="font-size:11px;font-weight:600;color:#DC2626;background:#FEE2E2;border:none;cursor:pointer;padding:4px 10px;border-radius:6px;transition:all 0.2s;">Delete</button>
+                    </form>
+                  </div>
                 </div>
               </div>
               @endforeach
@@ -220,7 +226,7 @@
                   <p style="font-size:11px; color:var(--muted);">{{ $rev->created_at?->diffForHumans() }}</p>
                 </div>
               </div>
-              <span style="font-size:12px; font-weight:600; color:var(--brand);">{{ $rev->rating }}/5</span>
+              <span style="font-size:12px; font-weight:600; color:var(--brand);">{{ $rev->note }}/5</span>
             </div>
             <p style="font-size:13px; color:var(--ink-2); line-height:1.6;">{{ Str::limit($rev->comment, 120) }}</p>
           </div>
@@ -250,6 +256,17 @@
             <div>
               <div style="font-size:11px; font-weight:500; color:var(--muted); text-transform:uppercase; letter-spacing:.04em;">Workshop</div>
               <div style="font-size:13px; margin-top:2px;">{{ $artisanUser->artisan->workshopAdresse ?? '—' }}</div>
+              <div style="margin-top:10px; height:120px; border-radius:8px; overflow:hidden; border:1px solid var(--border);">
+                <iframe 
+                  width="100%" 
+                  height="100%" 
+                  frameborder="0" 
+                  scrolling="no" 
+                  marginheight="0" 
+                  marginwidth="0" 
+                  src="https://maps.google.com/maps?q={{ urlencode($artisanUser->artisan->workshopAdresse ?? $artisanUser->city ?? 'Morocco') }}&t=&z=13&ie=UTF8&iwloc=&output=embed">
+                </iframe>
+              </div>
             </div>
             <hr style="border:none; border-top:1px solid var(--border);" />
             <div>
@@ -271,7 +288,7 @@
 
         @if($reviewsCount > 0)
         @php
-          $dist = $artisanUser->reviewsReceived->groupBy('rating')->map->count();
+          $dist = $artisanUser->reviewsReceived->groupBy('note')->map->count();
           $tot  = $reviewsCount;
         @endphp
         <div class="card" style="padding:18px;">

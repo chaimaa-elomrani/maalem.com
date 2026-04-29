@@ -30,7 +30,7 @@
     /* SIDEBAR */
     .sidebar { position: sticky; top: 78px; display: flex; flex-direction: column; gap: 12px; }
     .fsec { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-    .fsec-head { padding: 11px 16px; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid var(--border); background: var(--bg); }
+    .fsec-head { padding: 11px 16px; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em;  background: white; }
     .fopt { display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; cursor: pointer; transition: background .1s; }
     .fopt:hover { background: var(--bg); }
     .fopt label { font-size: 13px; color: var(--ink-2); cursor: pointer; display: flex; align-items: center; gap: 8px; }
@@ -211,14 +211,14 @@
 <!-- CATEGORY TABS -->
 <div class="cat-bar">
   <div class="cat-bar-inner">
-    <span class="cat-tab active">All <span class="cat-count">248</span></span>
-    <span class="cat-tab">Pottery <span class="cat-count">54</span></span>
-    <span class="cat-tab">Weaving <span class="cat-count">41</span></span>
-    <span class="cat-tab">Leather <span class="cat-count">37</span></span>
-    <span class="cat-tab">Metalwork <span class="cat-count">29</span></span>
-    <span class="cat-tab">Ceramics <span class="cat-count">48</span></span>
-    <span class="cat-tab">Woodwork <span class="cat-count">22</span></span>
-    <span class="cat-tab">Jewelry <span class="cat-count">17</span></span>
+    <a href="{{ route('artisans.index', request()->except('city_cat')) }}" class="cat-tab {{ !request('city_cat') ? 'active' : '' }}" style="text-decoration:none;">All</a>
+    @foreach(['Pottery' => 54, 'Weaving' => 41, 'Leather' => 37, 'Metalwork' => 29, 'Ceramics' => 48, 'Woodwork' => 22, 'Jewelry' => 17] as $cat => $count)
+      <a href="{{ route('artisans.index', array_merge(request()->all(), ['search' => $cat])) }}"
+         class="cat-tab {{ request('search') === $cat ? 'active' : '' }}"
+         style="text-decoration:none;">
+        {{ $cat }} 
+      </a>
+    @endforeach
   </div>
 </div>
 
@@ -310,7 +310,7 @@
               <div class="acard-craft">{{ $artisan->artisan->service }} · {{ $artisan->city }}</div>
               <div class="acard-meta">
                 <span class="acard-rating">
-                   <span class="star">★</span> {{ round($artisan->reviews_received_avg_rating ?? 0, 1) ?: 'N/A' }}
+                   <span class="star">★</span> {{ round($artisan->reviews_received_avg_note ?? 0, 1) ?: 'N/A' }}
                 </span>
                 <span class="sep">·</span>
                 <span>({{ $artisan->reviews_received_count ?? 0 }} reviews)</span>
@@ -323,7 +323,7 @@
                     <span class="tag">{{ $artisan->city }}</span>
                 @endif
                 <div style="margin-left: auto; display: flex; gap: 8px;">
-                    <button class="btn-ghost" onclick="event.stopPropagation(); addToCompare({{ json_encode(['id'=>$artisan->id, 'name'=>$artisan->name, 'city'=>$artisan->city, 'rating'=>round($artisan->reviews_received_avg_rating ?? 0, 1), 'projects'=>$artisan->posts_count]) }})" style="padding: 6px 12px; font-size: 11px;">
+                    <button class="btn-ghost" onclick="event.stopPropagation(); addToCompare({{ json_encode(['id'=>$artisan->id, 'name'=>$artisan->name, 'city'=>$artisan->city, 'rating'=>round($artisan->reviews_received_avg_note ?? 0, 1), 'projects'=>$artisan->posts_count]) }})" style="padding: 6px 12px; font-size: 11px;">
                         + Compare
                     </button>
                     <button class="btn-view">View Profile</button>
@@ -359,8 +359,8 @@
   <div id="compareModal" class="compare-modal" onclick="closeCompareModal()">
     <div class="compare-content" onclick="event.stopPropagation()">
         <div class="compare-head">
-            <h2 class="font-bold text-xl">Artisan Comparison</h2>
-            <button onclick="closeCompareModal()" class="text-gray-400 hover:text-gray-600">
+            <h2 style="font-weight:700; font-size:18px;">Artisan Comparison</h2>
+            <button onclick="closeCompareModal()" style="background:none; border:none; color:#9CA3AF; cursor:pointer; padding:4px;">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
         </div>
@@ -454,12 +454,12 @@
         <div class="compare-row">
             <div class="compare-cell compare-label">Artisan</div>
             ${compareList.map(a => `
-                <div class="compare-cell flex-col items-start">
+                <div class="compare-cell" style="flex-direction:column; align-items:flex-start;">
                     <div class="compare-artisan-name">${a.name}</div>
                     <div class="compare-artisan-sub">#${a.id}</div>
                 </div>
             `).join('')}
-            ${Array(3 - compareList.length).fill('<div class="compare-cell text-gray-300 italic">Empty Slot</div>').join('')}
+            ${Array(3 - compareList.length).fill('<div class="compare-cell" style="color:#D1D5DB; font-style:italic;">Empty Slot</div>').join('')}
         </div>
         <div class="compare-row">
             <div class="compare-cell compare-label">City</div>
@@ -478,7 +478,7 @@
         </div>
         <div class="compare-row">
             <div class="compare-cell compare-label">Actions</div>
-            ${compareList.map(a => `<div class="compare-cell"><a href="/artisan/${a.id}" class="text-brand font-bold text-xs">View Profile</a></div>`).join('')}
+            ${compareList.map(a => `<div class="compare-cell"><a href="/artisan/${a.id}" style="color:var(--brand); font-weight:700; font-size:12px; text-decoration:none;">View Profile</a></div>`).join('')}
             ${Array(3 - compareList.length).fill('<div class="compare-cell"></div>').join('')}
         </div>
     `;

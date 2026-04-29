@@ -1,220 +1,495 @@
 @extends('layouts.main')
 
-@section('title', 'Mediator Dashboard — m3alem')
+@section('title', 'Mediator Dashboard — m3alem Logistics')
 
 @push('styles')
 <style>
-    .dash-card {
-        background: #fff;
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 24px;
-        transition: all 0.3s ease;
+    /* Premium Logistics Dashboard Styles */
+    :root {
+        --logistic-bg: #f8fafc;
+        --logistic-surface: #ffffff;
+        --logistic-border: #e2e8f0;
+        --logistic-text: #0f172a;
+        --logistic-text-muted: #64748b;
+        --transit-color: #3b82f6;
+        --success-color: #10b981;
+        --warning-color: #f59e0b;
+        --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
     }
-    .dash-card:hover {
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-        border-color: var(--brand-mid);
+
+    .logistics-wrapper {
+        background-color: var(--logistic-bg);
+        min-height: calc(100vh - 64px);
+        padding: 40px;
+        font-family: 'Inter', sans-serif;
     }
-    .status-badge {
-        font-size: 11px;
+
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 32px;
+    }
+
+    .profile-greeting {
+        font-size: 28px;
         font-weight: 700;
-        padding: 4px 10px;
-        border-radius: 99px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+        color: var(--logistic-text);
+        letter-spacing: -0.02em;
     }
-    .status-pending { background: var(--amber-bg); color: var(--amber); }
-    .status-accepted { background: var(--blue-bg); color: var(--blue); }
-    .status-artisan { background: var(--green-bg); color: var(--green); }
-    .status-progress { background: #F3E8FF; color: #7E22CE; }
-    .status-delivered { background: #F1F5F9; color: #475569; }
+    
+    .profile-subtitle {
+        color: var(--logistic-text-muted);
+        font-size: 14px;
+        margin-top: 4px;
+    }
 
-    .req-item {
+    /* KPI Cards */
+    .kpi-grid {
         display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 20px;
-        padding: 20px 0;
-        border-bottom: 1px solid var(--border);
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+        margin-bottom: 32px;
     }
-    .req-item:last-child { border-bottom: none; }
 
-    .btn-action {
+    .kpi-card {
+        background: var(--logistic-surface);
+        border: 1px solid var(--logistic-border);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: var(--card-shadow);
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .kpi-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.05);
+    }
+
+    .kpi-icon-wrapper {
+        width: 56px;
+        height: 56px;
+        border-radius: 12px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .kpi-icon-wrapper.available { background: #fef3c7; color: #d97706; }
+    .kpi-icon-wrapper.transit { background: #eff6ff; color: #2563eb; }
+    .kpi-icon-wrapper.completed { background: #dcfce7; color: #16a34a; }
+
+    .kpi-content h3 {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--logistic-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 4px;
+    }
+
+    .kpi-content .kpi-value {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--logistic-text);
+        line-height: 1;
+    }
+
+    /* Main Grid Layout */
+    .dashboard-layout {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 32px;
+    }
+
+    @media (max-width: 1024px) {
+        .dashboard-layout {
+            grid-template-columns: 1fr;
+        }
+        .logistics-wrapper {
+            padding: 24px;
+        }
+    }
+
+    /* Section Cards */
+    .section-card {
+        background: var(--logistic-surface);
+        border: 1px solid var(--logistic-border);
+        border-radius: 16px;
+        box-shadow: var(--card-shadow);
+        overflow: hidden;
+    }
+
+    .section-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--logistic-border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #fafafa;
+    }
+
+    .section-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--logistic-text);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .mission-count {
+        background: var(--logistic-border);
+        color: var(--logistic-text-muted);
+        padding: 4px 10px;
+        border-radius: 20px;
         font-size: 12px;
         font-weight: 600;
-        padding: 6px 14px;
-        border-radius: 6px;
-        transition: all 0.2s;
     }
-    .btn-accept { background: var(--brand); color: #fff; }
-    .btn-accept:hover { background: var(--brand-hover); }
+
+    .mission-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Mission Items */
+    .mission-item {
+        padding: 24px;
+        border-bottom: 1px solid var(--logistic-border);
+        transition: background-color 0.15s ease;
+    }
+
+    .mission-item:last-child {
+        border-bottom: none;
+    }
     
-    .btn-update { background: var(--ink); color: #fff; }
-    .btn-update:hover { opacity: 0.9; }
+    .mission-item:hover {
+        background-color: #f8fafc;
+    }
+
+    .mission-top-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 16px;
+    }
+
+    .mission-route {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .route-point {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .point-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--logistic-text-muted);
+    }
+    
+    .route-line {
+        width: 2px;
+        height: 24px;
+        background-image: linear-gradient(to bottom, #cbd5e1 50%, transparent 50%);
+        background-size: 100% 8px;
+        margin-left: 15px;
+    }
+
+    .person-name {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--logistic-text);
+    }
+
+    .person-role {
+        font-size: 12px;
+        color: var(--logistic-text-muted);
+    }
+
+    .mission-details-box {
+        background: #f8fafc;
+        border: 1px solid var(--logistic-border);
+        border-radius: 8px;
+        padding: 16px;
+        margin-top: 16px;
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-size: 13px;
+    }
+    .detail-row:last-child { margin-bottom: 0; }
+    
+    .detail-label { color: var(--logistic-text-muted); font-weight: 500; }
+    .detail-value { color: var(--logistic-text); font-weight: 600; text-align: right; max-width: 60%; }
+
+    /* Badges & Buttons */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    .status-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+
+    .btn-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+        width: 100%;
+        margin-top: 16px;
+    }
+
+    .btn-primary { background: var(--logistic-text); color: #fff; }
+    .btn-primary:hover { background: #000; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    
+    .btn-accent { background: var(--transit-color); color: #fff; }
+    .btn-accent:hover { background: #2563eb; box-shadow: 0 4px 12px rgba(59,130,246,0.2); }
+    
+    .btn-success { background: var(--success-color); color: #fff; }
+    .btn-success:hover { background: #059669; box-shadow: 0 4px 12px rgba(16,185,129,0.2); }
+
+    .empty-state {
+        padding: 64px 24px;
+        text-align: center;
+        color: var(--logistic-text-muted);
+    }
+    
+    .empty-state svg {
+        margin: 0 auto 16px;
+        color: #cbd5e1;
+    }
 </style>
 @endpush
 
 @section('content')
-<div class="py-10 bg-[#FAFAFA] min-h-screen">
-    <div class="container-xl">
-        <div class="flex items-center justify-between mb-8">
-            <div>
-                <h1 class="display-font text-3xl font-bold text-gray-900">Mediator Dashboard</h1>
-                <p class="body-font text-gray-500 mt-1 text-sm">Oversee and coordinate craftsman-client deliveries.</p>
+<div class="logistics-wrapper">
+    <div class="dashboard-header">
+        <div>
+            <h1 class="profile-greeting">Logistics Terminal</h1>
+            <p class="profile-subtitle">{{ Auth::user()->name }} — Central Dispatch Network</p>
+        </div>
+        <div class="date-chip" style="background:#fff;border:1px solid #e2e8f0;padding:8px 16px;border-radius:8px;font-weight:600;font-size:14px;color:#0f172a;">
+            {{ now()->format('l, F j, Y') }}
+        </div>
+    </div>
+
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-icon-wrapper available">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
             </div>
-            <div class="flex items-center gap-3">
-                <div class="text-right mr-3 hidden sm:block">
-                    <div class="text-sm font-bold text-gray-900">Active Taskforce</div>
-                    <div class="text-xs text-green-600 font-medium flex items-center justify-end gap-1">
-                        <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                        {{ $myDeliveries->count() }} active missions
-                    </div>
-                </div>
+            <div class="kpi-content">
+                <h3>Open Requests</h3>
+                <div class="kpi-value">{{ $availableRequests->count() }}</div>
+            </div>
+        </div>
+        
+        <div class="kpi-card">
+            <div class="kpi-icon-wrapper transit">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.58 16.14a6 6 0 0 1 6.84 0"></path><circle cx="12" cy="19" r="1"></circle></svg>
+            </div>
+            <div class="kpi-content">
+                <h3>Active Transits</h3>
+                <div class="kpi-value">{{ $myDeliveries->count() }}</div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Available Requests -->
-            <div class="lg:col-span-2 space-y-6">
-                <div class="dash-card">
-                    <div class="flex items-center justify-between mb-6">
-                        <h2 class="font-bold text-lg text-gray-900 flex items-center gap-2">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-500"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                            Available Missions
-                        </h2>
-                        <span class="text-xs font-semibold text-gray-400 bg-gray-50 px-2.5 py-1 rounded-full">{{ $availableRequests->count() }} New</span>
-                    </div>
-
-                    @forelse($availableRequests as $request)
-                        <div class="req-item">
-                            <div>
-                                <div class="flex items-center gap-3 mb-2">
-                                    <span class="status-badge status-pending">New Request</span>
-                                    <span class="text-xs text-gray-400 font-medium">{{ $request->created_at->diffForHumans() }}</span>
-                                </div>
-                                <h3 class="font-bold text-gray-900 mb-1">{{ $request->artisan->user->name }} — {{ $request->description }}</h3>
-                                <div class="flex items-center gap-4 text-xs text-gray-500">
-                                    <span class="flex items-center gap-1">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                                        {{ $request->adresse }}
-                                    </span>
-                                    <span class="flex items-center gap-1">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                                        {{ $request->deliveryDate->format('M d, Y') }}
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="flex items-center">
-                                <form action="{{ route('deliveries.accept', $request) }}" method="POST">
-                                    @csrf
-                                    <button type="submit" class="btn-action btn-accept">Accept Mission</button>
-                                </form>
-                            </div>
-                        </div>
-                    @empty
-                        <div class="py-12 text-center">
-                            <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-300"><polyline points="20 6 9 17 4 12"/></svg>
-                            </div>
-                            <p class="text-gray-400 text-sm font-medium">No pending requests at the moment.</p>
-                        </div>
-                    @endforelse
-                </div>
-
-                <!-- Active Deliveries -->
-                <div class="dash-card">
-                    <div class="flex items-center justify-between mb-6">
-                        <h2 class="font-bold text-lg text-gray-900 flex items-center gap-2">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.58 16.14a7 7 0 0 1 6.84 0"/><circle cx="12" cy="19" r="1"/></svg>
-                            In-Transit missions
-                        </h2>
-                    </div>
-
-                    @forelse($myDeliveries as $request)
-                        <div class="req-item">
-                            <div>
-                                <div class="flex items-center gap-3 mb-2">
-                                    <span class="status-badge 
-                                        @if($request->status == 'accepted_by_mediator') status-accepted 
-                                        @elseif($request->status == 'at_artisan') status-artisan
-                                        @elseif($request->status == 'in_progress') status-progress
-                                        @else status-pending @endif">
-                                        {{ str_replace('_', ' ', $request->status) }}
-                                    </span>
-                                    <span class="text-xs text-gray-400 font-medium">ID: #{{ $request->id }}</span>
-                                </div>
-                                <h3 class="font-bold text-gray-900 mb-1">From: {{ $request->client->user->name }} $\rightarrow$ To: {{ $request->artisan->user->name }}</h3>
-                                <p class="text-xs text-gray-500 mb-3">{{ $request->adresse }}</p>
-                            </div>
-                            <div class="flex flex-col gap-2">
-                                @if($request->status == 'accepted_by_mediator')
-                                    <form action="{{ route('deliveries.update-status', $request) }}" method="POST">
-                                        @csrf @method('PATCH')
-                                        <input type="hidden" name="status" value="picked_up_client">
-                                        <button type="submit" class="btn-action btn-update">Mark Picked Up</button>
-                                    </form>
-                                @elseif($request->status == 'picked_up_client')
-                                    <form action="{{ route('deliveries.update-status', $request) }}" method="POST">
-                                        @csrf @method('PATCH')
-                                        <input type="hidden" name="status" value="at_artisan">
-                                        <button type="submit" class="btn-action btn-update">Delivered to Artisan</button>
-                                    </form>
-                                @elseif($request->status == 'ready_for_return')
-                                    <form action="{{ route('deliveries.update-status', $request) }}" method="POST">
-                                        @csrf @method('PATCH')
-                                        <input type="hidden" name="status" value="delivered">
-                                        <button type="submit" class="btn-action btn-update">Confirm Final Delivery</button>
-                                    </form>
-                                @endif
-                                <button class="btn-action bg-gray-100 text-gray-600 hover:bg-gray-200">Contact Party</button>
-                            </div>
-                        </div>
-                    @empty
-                        <div class="py-12 text-center text-gray-400 text-sm font-medium">
-                            No active missions.
-                        </div>
-                    @endforelse
-                </div>
+        <div class="kpi-card">
+            <div class="kpi-icon-wrapper completed">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
             </div>
-
-            <!-- Sidebar Info -->
-            <div class="space-y-6">
-                <div class="dash-card bg-var(--ink) text-white" style="background: #18181B;">
-                    <h3 class="font-bold text-lg mb-2">Service Standard</h3>
-                    <p class="text-gray-400 text-xs leading-relaxed mb-4">You represent the quality bridge between Morocco's finest artisans and their customers. Ensure every pickup is verified and every transition is logged.</p>
-                    <div class="space-y-3">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-amber-500">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                            </div>
-                            <div>
-                                <div class="text-[11px] text-gray-500 uppercase font-bold tracking-tight">Trust Score</div>
-                                <div class="text-sm font-bold">98.4% Secure</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="dash-card">
-                    <h3 class="font-bold text-sm text-gray-900 mb-4 uppercase tracking-widest">Recent Activity</h3>
-                    <div class="space-y-4">
-                        <div class="flex gap-3">
-                            <div class="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5"></div>
-                            <div>
-                                <p class="text-[13px] text-gray-800"><span class="font-bold">Mission #42</span> accepted successfully.</p>
-                                <span class="text-[10px] text-gray-400">2 hours ago</span>
-                            </div>
-                        </div>
-                        <div class="flex gap-3">
-                            <div class="w-1.5 h-1.5 rounded-full bg-green-500 mt-1.5"></div>
-                            <div>
-                                <p class="text-[13px] text-gray-800">Payment released for <span class="font-bold">Mission #39</span>.</p>
-                                <span class="text-[10px] text-gray-400">5 hours ago</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="kpi-content">
+                <h3>Completed</h3>
+                <div class="kpi-value">{{ $completedCount }}</div>
             </div>
         </div>
+    </div>
+
+    <div class="dashboard-layout">
+        
+        <!-- Active Deliveries Panel -->
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--transit-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+                    Your Assigments
+                </div>
+                <span class="mission-count">{{ $myDeliveries->count() }} Active</span>
+            </div>
+            
+            <ul class="mission-list">
+                @forelse($myDeliveries as $request)
+                    @php
+                        // Determine styling based on status
+                        $statusData = [
+                            'accepted_by_mediateur' => ['lbl' => 'Pickup Required', 'color' => '#f59e0b', 'bg' => '#fef3c7'],
+                            'picked_up_client' => ['lbl' => 'In Transit to Artisan', 'color' => '#3b82f6', 'bg' => '#eff6ff'],
+                            'at_artisan' => ['lbl' => 'Processing at Artisan', 'color' => '#8b5cf6', 'bg' => '#f3e8ff'],
+                            'in_progress' => ['lbl' => 'Artisan Working', 'color' => '#8b5cf6', 'bg' => '#f3e8ff'],
+                            'ready_for_return' => ['lbl' => 'Ready for Client Drop-off', 'color' => '#10b981', 'bg' => '#dcfce7'],
+                        ];
+                        
+                        $s = $statusData[$request->status] ?? ['lbl' => str_replace('_', ' ', $request->status), 'color' => '#64748b', 'bg' => '#f1f5f9'];
+                    @endphp
+                
+                    <li class="mission-item">
+                        <div class="mission-top-row">
+                            <div class="status-badge" style="background: {{ $s['bg'] }}; color: {{ $s['color'] }};">
+                                <div class="status-indicator" style="background: {{ $s['color'] }};"></div>
+                                {{ $s['lbl'] }}
+                            </div>
+                            <div style="font-weight:600; color:var(--logistic-text-muted); font-size:13px; font-family:monospace;">TRK-{{ str_pad($request->id, 5, '0', STR_PAD_LEFT) }}</div>
+                        </div>
+
+                        <div class="mission-route">
+                            <!-- Client Node -->
+                            <div class="route-point">
+                                <div class="point-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
+                                <div>
+                                    <div class="person-name">{{ $request->client->user->name }}</div>
+                                    <div class="person-role">Client • {{ $request->adresse }}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="route-line"></div>
+                            
+                            <!-- Artisan Node -->
+                            <div class="route-point">
+                                <div class="point-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></div>
+                                <div>
+                                    <div class="person-name">{{ $request->artisan->user->name }}</div>
+                                    <div class="person-role">Master Artisan • {{ $request->artisan->workshopAdresse ?? 'Workshop' }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mission-details-box">
+                            <div class="detail-row">
+                                <span class="detail-label">Item Description</span>
+                                <span class="detail-value">{{ $request->description }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Target Delivery</span>
+                                <span class="detail-value">{{ \Carbon\Carbon::parse($request->deliveryDate)->format('M d, Y') }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Dynamic Action Buttons based on status -->
+                        @if($request->status == 'accepted_by_mediateur')
+                            <form action="{{ route('deliveries.update-status', $request) }}" method="POST">
+                                @csrf @method('PATCH')
+                                <input type="hidden" name="status" value="picked_up_client">
+                                <button type="submit" class="btn-action btn-primary">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                                    Confirm Item Pickup
+                                </button>
+                            </form>
+                        @elseif($request->status == 'picked_up_client')
+                            <form action="{{ route('deliveries.update-status', $request) }}" method="POST">
+                                @csrf @method('PATCH')
+                                <input type="hidden" name="status" value="at_artisan">
+                                <button type="submit" class="btn-action btn-accent">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg>
+                                    Drop-off at Artisan
+                                </button>
+                            </form>
+                        @elseif($request->status == 'ready_for_return')
+                            <form action="{{ route('deliveries.update-status', $request) }}" method="POST">
+                                @csrf @method('PATCH')
+                                <input type="hidden" name="status" value="delivered">
+                                <button type="submit" class="btn-action btn-success">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                    Complete Final Delivery
+                                </button>
+                            </form>
+                        @endif
+                    </li>
+                @empty
+                    <div class="empty-state">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                        <h4 style="font-size:16px;font-weight:600;color:var(--logistic-text);margin-bottom:8px;">No Active Assignments</h4>
+                        <p>Pick up new tasks from the board to get started.</p>
+                    </div>
+                @endforelse
+            </ul>
+        </div>
+        
+        <!-- Open Requests Board -->
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--warning-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    Order Board
+                </div>
+                <span class="mission-count">{{ $availableRequests->count() }} Open</span>
+            </div>
+            
+            <ul class="mission-list">
+                @forelse($availableRequests as $request)
+                    <li class="mission-item" style="padding: 20px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                            <span style="font-size:12px;font-weight:600;color:var(--warning-color);background:#fef3c7;padding:4px 8px;border-radius:4px;">PENDING DISPATCH</span>
+                            <span style="font-size:12px;color:var(--logistic-text-muted);">{{ $request->created_at->diffForHumans() }}</span>
+                        </div>
+                        
+                        <h4 style="font-size:15px;font-weight:600;color:var(--logistic-text);margin-bottom:4px;">{{ $request->description }}</h4>
+                        <p style="font-size:13px;color:var(--logistic-text-muted);margin-bottom:16px;line-height:1.5;">
+                            <strong>From:</strong> {{ $request->client->user->name }}'s Address<br>
+                            <strong>To:</strong> {{ $request->artisan->user->name }}'s Workshop
+                        </p>
+                        
+                        <form action="{{ route('deliveries.accept', $request) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn-action btn-primary" style="margin-top:0;padding:8px 16px;">
+                                Claim Delivery
+                            </button>
+                        </form>
+                    </li>
+                @empty
+                    <div class="empty-state" style="padding:40px 20px;">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                        <h4 style="font-size:14px;font-weight:600;color:var(--logistic-text);margin-bottom:4px;">No Open Orders</h4>
+                        <p style="font-size:13px;">The dispatch board is currently clear.</p>
+                    </div>
+                @endforelse
+            </ul>
+        </div>
+
     </div>
 </div>
 @endsection

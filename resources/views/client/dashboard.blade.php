@@ -17,7 +17,6 @@
     .sidebar-link.active { background: var(--brand-light); color: var(--brand); font-weight: 600; }
     .sidebar-link svg { flex-shrink: 0; opacity: .7; }
     .sidebar-link.active svg { opacity: 1; }
-    .sidebar-badge { margin-left: auto; background: var(--brand); color: #fff; font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 999px; }
 
     /* ── MAIN CONTENT AREA ── */
     .main { padding: 28px 0 60px 28px; display: flex; flex-direction: column; gap: 24px; min-width: 0; }
@@ -164,19 +163,9 @@
     </a>
 
     <div class="sidebar-label">My Activity</div>
-    <a class="sidebar-link" href="#">
+    <a class="sidebar-link active" href="{{ route('dashboard') }}">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
       My Requests
-      <span class="sidebar-badge">2</span>
-    </a>
-    <a class="sidebar-link" href="#">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-      Deliveries
-      <span class="sidebar-badge">1</span>
-    </a>
-    <a class="sidebar-link" href="#">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-      Saved Artisans
     </a>
     <a class="sidebar-link" href="#">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -197,75 +186,53 @@
   <!-- MAIN -->
   <main class="main">
 
-    <!-- Page title -->
-    <div class="page-title">
-      <div>
-        <h1>Good morning, {{ explode(' ', Auth::user()->name)[0] }}</h1>
-        <p>Here's what's happening with your requests today.</p>
-      </div>
-      <button class="btn-p" onclick="window.location='{{ route('feed') }}'">+ New Request</button>
-    </div>
-
     <!-- Stats -->
     <div class="stats-row">
       <div class="stat-card">
         <div class="stat-card-top">
           <div>
-            <div class="stat-num">3</div>
-            <div class="stat-lbl">Active Requests</div>
-          </div>
-          <div class="stat-icon" style="background:var(--blue-bg);">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
-          </div>
-        </div>
-        <div class="stat-delta delta-up">↑ 1 new this week</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-card-top">
-          <div>
             <div class="stat-num">{{ $deliveryRequests->where('status', '!=', 'delivered')->count() }}</div>
-            <div class="stat-lbl">In Delivery</div>
-          </div>
-          <div class="stat-icon" style="background:#EDE9FE;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <div class="stat-lbl">Tracked Services</div>
           </div>
         </div>
-        <div class="stat-delta delta-neutral">Active missions</div>
+        <div class="stat-delta delta-neutral">Active currently</div>
       </div>
       <div class="stat-card">
         <div class="stat-card-top">
           <div>
-            <div class="stat-num">{{ $likedPosts->count() }}</div>
-            <div class="stat-lbl">Saved Artisans</div>
-          </div>
-          <div class="stat-icon" style="background:var(--brand-light);">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B85C2A" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <div class="stat-num">{{ $deliveryRequests->whereIn('status', ['at_artisan', 'in_progress', 'ready_for_return'])->count() }}</div>
+            <div class="stat-lbl">In Production</div>
           </div>
         </div>
-        <div class="stat-delta delta-neutral">Based on likes</div>
+        <div class="stat-delta delta-neutral">At the workshop</div>
       </div>
       <div class="stat-card">
         <div class="stat-card-top">
           <div>
-            <div class="stat-num">12</div>
-            <div class="stat-lbl">Completed</div>
-          </div>
-          <div class="stat-icon" style="background:var(--green-bg);">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            <div class="stat-num">{{ $deliveryRequests->where('status', 'delivered')->count() }}</div>
+            <div class="stat-lbl">Done Services</div>
           </div>
         </div>
-        <div class="stat-delta delta-up">↑ 3 this month</div>
+        <div class="stat-delta delta-neutral">Successfully received</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-top">
+          <div>
+            <div class="stat-num">{{ $deliveryRequests->count() }}</div>
+            <div class="stat-lbl">Total Orders</div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Active requests -->
+    <!-- Tracked services (Active) -->
     <div>
       <div class="sec-head">
-        <h2>Active Requests</h2>
-        <a href="#">View all</a>
+        <h2>Tracked Services</h2>
+        <span style="font-size:12px; color:var(--muted);">Real-time progress</span>
       </div>
       <div class="req-list">
-        @forelse($deliveryRequests as $request)
+        @forelse($deliveryRequests->where('status', '!=', 'delivered') as $request)
             <div class="req-row">
               <div class="req-thumb">
                 @php
@@ -280,10 +247,7 @@
                   <div class="req-sub">{{ $request->description }} · {{ $request->artisan->user->city }}</div>
                 </div>
                 <div class="vdiv"></div>
-                <span class="req-status 
-                    @if($request->status == 'pending') status-pending
-                    @elseif($request->status == 'delivered') status-done
-                    @else status-transit @endif">
+                <span class="req-status status-transit">
                     <span class="status-dot"></span>
                     {{ str_replace('_', ' ', $request->status) }}
                 </span>
@@ -294,15 +258,14 @@
               </div>
               <div class="req-action">
                 <span class="req-date">{{ $request->created_at->format('M d') }}</span>
-                <button class="btn-g" onclick="showTracker({{ $request->id }})">Track</button>
+                <button class="btn-g" onclick="showTracker({{ $request->id }})">Track Live</button>
               </div>
             </div>
             
-            <!-- Tracking Modal / Inline Tracker (Simplified for now) -->
-            <div id="tracker-{{ $request->id }}" style="display:none; background: var(--bg); padding: 15px; border-top: 1px solid var(--border);">
+            <div id="tracker-{{ $request->id }}" style="display:none; background: var(--bg); padding: 20px; border-top: 1px solid var(--border);">
                 <div class="track-steps">
                     @php
-                        $statuses = ['pending', 'accepted_by_mediator', 'picked_up_client', 'at_artisan', 'in_progress', 'ready_for_return', 'delivered'];
+                        $statuses = ['pending', 'accepted_by_mediateur', 'picked_up_client', 'at_artisan', 'in_progress', 'ready_for_return', 'delivered'];
                         $currentIdx = array_search($request->status, $statuses);
                     @endphp
                     @foreach($statuses as $index => $status)
@@ -315,96 +278,58 @@
                             </div>
                             <div class="step-info">
                                 <div class="step-label {{ $index > $currentIdx ? 'muted' : '' }}">{{ ucwords(str_replace('_', ' ', $status)) }}</div>
+                                <div class="step-time">{{ $index <= $currentIdx ? 'Completed' : 'Upcoming' }}</div>
                             </div>
                         </div>
                     @endforeach
-                </div>
+                </div>  
             </div>
         @empty
-            <div class="p-8 text-center text-gray-400">
-                <p>No active delivery requests found.</p>
-                <a href="{{ route('artisans.index') }}" class="text-brand font-medium mt-2 block">Find an artisan to start</a>
+            <div style="padding: 32px; text-align: center; color: var(--muted); background: var(--surface);">
+                <p>No services currently being tracked.</p>
             </div>
         @endforelse
       </div>
     </div>
 
-    <!-- Two column -->
-    <div class="two-col">
-
-      <!-- LEFT: Saved artisans + Pending review -->
-      <div style="display:flex;flex-direction:column;gap:20px;">
-
-        <!-- Saved artisans -->
-        <div>
-          <div class="sec-head">
-            <h2>Saved Artisans</h2>
-            <a href="#">View all</a>
-          </div>
-          <div class="saved-list">
-            @forelse($likedPosts as $post)
-                @php
-                  $placeholder = $placeholderImages[$post->id % count($placeholderImages)];
-                  $firstImage = is_array($post->images) && count($post->images) > 0 ? $post->images[0] : null;
-                  
-                  if ($firstImage && str_contains($firstImage, 'unsplash.com')) {
-                      $imgSrc = asset('images/' . $placeholder);
-                  } elseif ($firstImage) {
-                      $imgSrc = str_starts_with($firstImage, 'http') ? $firstImage : asset('storage/' . $firstImage);
-                  } else {
-                      $imgSrc = asset('images/' . $placeholder);
-                  }
-                @endphp
-                <div class="saved-row">
-                  <div class="saved-thumb"><img src="{{ $imgSrc }}" alt="" /></div>
-                  <div class="saved-body">
-                    <div class="saved-av">
-                        @if($post->artisan && $post->artisan->user)
-                             <img src="{{ asset('images/profile.webp') }}" alt="" />
-                        @else
-                             <div class="saved-av ini" style="background:#B85C2A;">?</div>
-                        @endif
-                    </div>
-                    <div class="saved-info">
-                      <div class="saved-name">{{ $post->artisan->user->name ?? 'Unknown Artisan' }}</div>
-                      <div class="saved-sub">{{ $post->category }} · {{ $post->artisan->user->city ?? 'Morocco' }}</div>
-                    </div>
-                  </div>
-                  <div class="saved-action">
-                    <span class="star">★</span><span class="saved-rating">4.9</span>
-                    <button class="btn-g" style="padding:5px 10px;font-size:11px;">Contact</button>
-                  </div>
-                </div>
-            @empty
-                <div style="background: var(--surface); padding: 20px; text-align: center; color: var(--muted);">
-                    No saved artisans yet. Like some crafts to see them here!
-                </div>
-            @endforelse
-          </div>
-        </div>
-
-        <!-- Pending reviews -->
-        <div>
-          <div class="sec-head">
-            <h2>Pending Reviews</h2>
-            <span style="font-size:11px;color:var(--muted);">1 awaiting</span>
-          </div>
-          <div class="review-prompt">
-            <div class="review-thumb"><img src="https://images.unsplash.com/photo-1601924582970-9238bcb495d9?w=80&q=80" alt="" /></div>
-            <div class="review-info">
-              <p>Omar Al-Hajji</p>
-              <span>Brass lantern repair — delivered Jan 18</span>
-            </div>
-            <div>
-              <div class="stars-empty">★★★★★</div>
-              <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:2px;">Rate now</div>
-            </div>
-          </div>
-        </div>
-
+    <!-- Done Services -->
+    <div>
+      <div class="sec-head">
+        <h2>Done Services</h2>
+        <span style="font-size:12px; color:var(--muted);">History of craftsmanship</span>
       </div>
-
-  
+      <div class="req-list">
+        @forelse($deliveryRequests->where('status', 'delivered') as $request)
+            <div class="req-row">
+              <div class="req-thumb">
+                @php
+                  $placeholder = $placeholderImages[$request->id % count($placeholderImages)];
+                @endphp
+                <img src="{{ asset('images/' . $placeholder) }}" alt="" />
+              </div>
+              <div class="req-body">
+                <div class="req-av ini" style="background:#4B5563;">{{ strtoupper(substr($request->artisan->user->name, 0, 1)) }}</div>
+                <div class="req-info">
+                  <div class="req-name">{{ $request->artisan->user->name }}</div>
+                  <div class="req-sub">Masterful {{ $request->artisan->service }} work completed.</div>
+                </div>
+                <div class="vdiv"></div>
+                <span class="req-status status-done">
+                    <span class="status-dot"></span>
+                    Delivered
+                </span>
+              </div>
+              <div class="req-action">
+                <span class="req-date">{{ $request->updated_at->format('M d, Y') }}</span>
+                <button class="btn-g" style="color:var(--brand)">Leave Review</button>
+              </div>
+            </div>
+        @empty
+            <div style="padding: 32px; text-align: center; color: var(--muted); background: var(--surface);">
+                <p>No completed services yet.</p>
+            </div>
+        @endforelse
+      </div>
     </div>
 
   </main>

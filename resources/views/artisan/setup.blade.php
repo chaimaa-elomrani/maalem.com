@@ -20,7 +20,7 @@
       padding: 11px 24px; border-radius: 8px; border: none; cursor: pointer;
       transition: background .15s, transform .1s; width: 100%;
     }
-    .btn-setup-submit:hover  { background: var(--brand-dark); }
+    .btn-setup-submit:hover  { background: var(--brand-hover); }
     .btn-setup-submit:active { transform: scale(.98); }
 
     .day-pill {

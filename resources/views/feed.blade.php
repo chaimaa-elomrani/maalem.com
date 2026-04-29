@@ -90,7 +90,7 @@
 
     /* Avatar ring */
     .avatar-ring {
-      box-shadow: 0 0 0 2px white, 0 0 0 4px var(--terracotta);
+      box-shadow: 0 0 0 2px white, 0 0 0 4px #b0a5a0ff;
     }
 
     /* Scrollbar */
@@ -347,9 +347,6 @@
           <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-gray-50" style="color:var(--ink-muted);">
             Messages
           </a>
-          <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-gray-50" style="color:var(--ink-muted);">
-            Saved
-          </a>
           <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-gray-50" style="color:var(--ink-muted);">
             Profile
           </a>
@@ -358,14 +355,6 @@
 
       </div>
 
-    <div class="rounded-2xl p-5" style="background:white;box-shadow:0 2px 20px rgba(28,22,18,0.06);">
-        <p class="text-xs font-semibold uppercase tracking-widest mb-4" style="color:var(--ink-muted);">Quick Links</p>
-        <div class="space-y-2">
-          <a href="#" class="block text-sm py-1.5 transition-colors hover:text-terracotta" style="color:var(--ink-muted);">Browse All Artisans</a>
-          <a href="#" class="block text-sm py-1.5 transition-colors hover:text-terracotta" style="color:var(--ink-muted);">How It Works</a>
-          <a href="#" class="block text-sm py-1.5 transition-colors hover:text-terracotta" style="color:var(--ink-muted);">Support</a>
-        </div>
-      </div>
   </aside>
 
 
@@ -482,91 +471,12 @@
         </div>
       </div>
 
-      <!-- Footer note -->
-      <p class="text-center text-xs px-4" style="color:var(--ink-muted);opacity:0.6;">
-        m3alem · Celebrating Moroccan Craft Heritage
-      </p>
+
 
     </div>
   </aside>
 
 </div>
-
-<script>
-  document.querySelectorAll('.image-scroller').forEach(scroller => {
-    scroller.addEventListener('scroll', () => {
-      const index = Math.round(scroller.scrollLeft / scroller.clientWidth) + 1;
-      const counter = scroller.parentElement.querySelector('.absolute.bottom-4.right-4');
-      if (counter) {
-        const total = scroller.querySelectorAll('.scroller-image').length;
-        counter.innerText = `${index} / ${total}`;
-      }
-    });
-  });
-
-  function openCommentModal(postId) {
-    const modal = document.getElementById('comment-modal-' + postId);
-    if (modal) {
-      modal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-  }
-
-  function closeCommentModal(event, postId) {
-    if (event.target === event.currentTarget) {
-      closeCommentModalDirect(postId);
-    }
-  }
-
-  function closeCommentModalDirect(postId) {
-    const modal = document.getElementById('comment-modal-' + postId);
-    if (modal) {
-      modal.classList.remove('active');
-      document.body.style.overflow = '';
-    }
-  }
-
-  // Close on Escape key
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-      document.querySelectorAll('.comment-overlay.active').forEach(modal => {
-        modal.classList.remove('active');
-      });
-      document.body.style.overflow = '';
-    }
-  });
-
-  // API Config
-  const CONFIG = {
-    auth: @json(auth()->check()),
-    loginUrl: "{{ route('login') }}",
-    placeholderImages: [
-      'Artisan Woman Weaving Traditional Moroccan Baskets.jpeg',
-      'Broderie de Fez.jpeg',
-      'L’Artisanat Marocain _ Un Héritage de Savoir-Faire Authentique.jpeg',
-      'Pottery Painting, Morocco.jpeg',
-      'Tapis Marocaine.jpeg',
-      'artisanat au maroc - Page 7.jpeg',
-      'image 26.png', 'image 34.png', 'image 35.png', 'image 36.png', 'image 37.png', 
-      'image 38.png', 'image 39.png', 'image 40.png', 'image 41.png', 'image 42.png',
-      'jpeg(1)',
-      'Кожевенные красильни Марракеша.jpeg',
-      'Разноцветье Марокко рядом.jpeg'
-    ],
-    assetImages: "{{ asset('images/') }}/",
-    assetStorage: "{{ asset('storage/') }}/",
-  };
-
-  let currentPage = 1;
-  let currentSearch = '{{ request('search', '') }}';
-  let currentCategory = '{{ request('category', '') }}';
-  let isLoading = false;
-  let hasMore = true;
-
-  const container = document.getElementById('posts-container');
-  const loader = document.getElementById('feed-loader');
-  const emptyState = document.getElementById('empty-state');
-  const clearFiltersBtn = document.getElementById('clear-filters-container');
 
 @endsection
 
@@ -745,7 +655,9 @@
     }
 
     const tagsHtml = Array.isArray(post.tags) ? post.tags.map(t => `<span class="tag">${t.trim()}</span>`).join('') : '';
-    const artisanName = (post.artisan && post.artisan.user) ? post.artisan.user.name : 'Unknown Artisan';
+    const artisanUser = (post.artisan && post.artisan.user) ? post.artisan.user : null;
+    const artisanName = artisanUser ? artisanUser.name : 'Unknown Artisan';
+    const profileUrl = artisanUser ? `/artisan/profile/${artisanUser.id}` : '#';
     
     // Recent comments
     const recentComments = post.comments ? post.comments.slice(0, 2) : [];
@@ -775,11 +687,25 @@
 
     return `
       <div class="craft-card fade-up delay-${animationDelay} rounded-2xl overflow-hidden" style="background:white;box-shadow:0 2px 20px rgba(28,22,18,0.07);">
+        <!-- Artisan Header -->
+        <div class="p-4 flex items-center justify-between">
+          <a href="${profileUrl}" class="flex items-center gap-3 no-underline group">
+            <div class="w-10 h-10 rounded-full object-cover flex-shrink-0 avatar-ring flex items-center justify-center bg-sand-dark text-white font-bold text-xs overflow-hidden transition-transform group-hover:scale-105">
+                <img src="${CONFIG.assetImages}profile.webp" class="w-full h-full object-cover" alt="Artisan" />
+            </div>
+            <div>
+              <p class="text-sm font-bold leading-tight transition-colors group-hover:text-terracotta" style="color:var(--ink);">${artisanName}</p>
+              <p class="text-xs" style="color:var(--ink-muted);">${post.category || 'Master Artisan'}</p>
+            </div>
+          </a>
+        </div>
+
         <div class="card-image relative">
           <div class="image-scroller">${imagesHtml}</div>
           ${images.length > 1 ? `<div class="absolute bottom-4 right-4 bg-black/50 text-white text-[10px] px-2 py-1 rounded-full backdrop-blur-sm pointer-events-none">1 / ${images.length}</div>` : ''}
           <div class="card-overlay"></div>
         </div>
+
         <div class="interaction-bar">
           <div class="flex items-center gap-1.5 cursor-pointer group" onclick="toggleLike(${post.id})">
             <svg id="like-icon-${post.id}" class="interaction-icon" fill="${post.is_liked ? 'var(--terracotta)' : 'none'}" stroke="${post.is_liked ? 'var(--terracotta)' : 'currentColor'}" stroke-width="2" viewBox="0 0 24 24" style="transition: all 0.2s ease;">
@@ -794,16 +720,8 @@
             <span class="text-xs font-bold" style="color:var(--ink);">${post.comments_count}</span>
           </div>
         </div>
+
         <div class="p-4 pt-0">
-          <div class="flex items-center gap-3 mb-3">
-            <div class="w-9 h-9 rounded-full object-cover flex-shrink-0 avatar-ring flex items-center justify-center bg-sand-dark text-white font-bold text-xs overflow-hidden">
-                <img src="${CONFIG.assetImages}profile.webp" class="w-full h-full object-cover" alt="Artisan" />
-            </div>
-            <div>
-              <p class="text-sm font-semibold leading-tight" style="color:var(--ink);">${artisanName}</p>
-              <p class="text-xs" style="color:var(--ink-muted);">${post.category || 'Category'}</p>
-            </div>
-          </div>
           <p class="text-sm font-bold mb-1" style="color:var(--ink);">${post.title}</p>
           <p class="text-sm leading-relaxed mb-3" style="color:var(--ink-muted);">${truncateText(post.description)}</p>
           <div class="flex gap-2 mb-4 flex-wrap">${tagsHtml}</div>

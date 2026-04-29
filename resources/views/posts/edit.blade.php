@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('title', 'Create New Listing — m3alem')
+@section('title', 'Update Listing — m3alem')
 
 @push('styles')
   <style>
@@ -238,8 +238,8 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
             Back to Dashboard
         </a>
-        <h1 class="page-title">List a New Creation</h1>
-        <p class="page-subtitle">Add your masterpiece to your portfolio and let the world see.</p>
+        <h1 class="page-title">Update Your Listing</h1>
+        <p class="page-subtitle">Refine the details of your masterpiece.</p>
     </div>
 
     @if ($errors->any())
@@ -253,12 +253,13 @@
     @endif
 
     <div class="form-card">
-        <form action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('posts.update', $post->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
+        @method('PATCH')
 
         <div class="form-group">
             <label class="form-label">Title of the Piece *</label>
-            <input type="text" name="title" class="form-input" placeholder="e.g., Hand-Woven Atlas Wool Rug, Cobalt Blue Tagine" required value="{{ old('title') }}">
+            <input type="text" name="title" class="form-input" placeholder="e.g., Hand-Woven Atlas Wool Rug" required value="{{ old('title', $post->title) }}">
         </div>
 
         <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
@@ -266,13 +267,12 @@
                 <label class="form-label">Category *</label>
                 <div style="position: relative;">
                     <select name="category" class="form-select" required style="appearance: none;">
-                        <option value="" disabled selected>Select craft type...</option>
-                        <option value="Pottery">Pottery & Ceramics</option>
-                        <option value="Weaving">Textiles & Weaving</option>
-                        <option value="Leatherwork">Leather Crafting</option>
-                        <option value="Woodwork">Woodworks</option>
-                        <option value="Metalwork">Metal & Jewelry</option>
-                        <option value="Zellige">Zellige & Tilework</option>
+                        <option value="Pottery" {{ old('category', $post->category) == 'Pottery' ? 'selected' : '' }}>Pottery & Ceramics</option>
+                        <option value="Weaving" {{ old('category', $post->category) == 'Weaving' ? 'selected' : '' }}>Textiles & Weaving</option>
+                        <option value="Leatherwork" {{ old('category', $post->category) == 'Leatherwork' ? 'selected' : '' }}>Leather Crafting</option>
+                        <option value="Woodwork" {{ old('category', $post->category) == 'Woodwork' ? 'selected' : '' }}>Woodworks</option>
+                        <option value="Metalwork" {{ old('category', $post->category) == 'Metalwork' ? 'selected' : '' }}>Metal & Jewelry</option>
+                        <option value="Zellige" {{ old('category', $post->category) == 'Zellige' ? 'selected' : '' }}>Zellige & Tilework</option>
                     </select>
                     <svg style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--ink-muted);" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                 </div>
@@ -280,23 +280,40 @@
             
             <div>
                 <label class="form-label">Keywords / Tags</label>
-                <input type="text" name="tags" class="form-input" placeholder="e.g. vintage, customized, blue" value="{{ old('tags') }}">
+                @php
+                    $tags = is_array($post->tags) ? implode(', ', $post->tags) : $post->tags;
+                @endphp
+                <input type="text" name="tags" class="form-input" placeholder="e.g. vintage, customized, blue" value="{{ old('tags', $tags) }}">
                 <div class="form-hint">Separate with commas</div>
             </div>
         </div>
 
         <div class="form-group">
             <label class="form-label">The Story behind the Piece *</label>
-            <textarea name="description" rows="5" class="form-textarea" placeholder="Describe your process, the inspiration, materials used, and unique characteristics..." required>{{ old('description') }}</textarea>
+            <textarea name="description" rows="5" class="form-textarea" placeholder="Describe your process..." required>{{ old('description', $post->description) }}</textarea>
         </div>
 
         <div class="form-group">
-            <label class="form-label">Showcase Images (Required) *</label>
+            <label class="form-label">Current Images</label>
+            <div class="preview-container">
+                @foreach($post->images as $img)
+                    @if(str_contains($img, 'unsplash'))
+                         <img src="{{ asset('images/image 26.png') }}" class="preview-img">
+                    @else
+                         <img src="{{ str_starts_with($img,'http') ? $img : asset('storage/'.$img) }}" class="preview-img">
+                    @endif
+                @endforeach
+            </div>
+            <p class="form-hint">Existing images will be kept unless you upload new ones.</p>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Upload New Images (Optional)</label>
             <div class="upload-area">
-                <input type="file" id="images-input" name="images[]" multiple class="upload-input" accept="image/*" required onchange="previewImages(event)">
+                <input type="file" id="images-input" name="images[]" multiple class="upload-input" accept="image/*" onchange="previewImages(event)">
                 <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
                 <div class="upload-text">Click to upload or drag and drop</div>
-                <div class="upload-subtext">SVG, PNG, JPG or GIF (Max 5MB each)</div>
+                <div class="upload-subtext">This will replace current images</div>
             </div>
             <div id="image-preview" class="preview-container" style="display: none;"></div>
             <div id="image-count" class="form-hint" style="display: none; margin-top: 8px; font-weight: 500;"></div>
@@ -305,7 +322,7 @@
         <div class="submit-wrapper">
             <button type="submit" class="btn-submit">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                Publish Listing
+                Save Changes
             </button>
         </div>
 
@@ -332,7 +349,7 @@
       return;
     }
 
-    countEl.textContent = files.length + (files.length === 1 ? ' file selected' : ' files selected');
+    countEl.textContent = files.length + (files.length === 1 ? ' new file selected' : ' new files selected');
 
     Array.from(files).forEach(file => {
       const reader = new FileReader();
