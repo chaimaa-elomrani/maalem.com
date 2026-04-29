@@ -65,6 +65,8 @@ class RegisteredUserController extends Controller
 
         if ($request->role === 'artisan') {
             return redirect()->route('artisan.setup');
+        } elseif ($request->role === 'mediateur') {
+            return redirect()->route('mediateur.dashboard');
         }
 
         return redirect(route('dashboard', absolute: false));

@@ -16,10 +16,11 @@ return new class extends Migration
             $table->text('description');
             $table->enum('status', [
                 'pending',
-                'accepted_by_mediator',
-                'in_progress_to_artisan',
+                'accepted_by_mediateur',
+                'picked_up_client',
                 'at_artisan',
-                'in_progress_to_client',
+                'in_progress',
+                'ready_for_return',
                 'delivered',
                 'rejected',
             ])->default('pending');

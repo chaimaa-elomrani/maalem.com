@@ -71,11 +71,15 @@ class User extends Authenticatable
     }
 
     public function reviews(){
-        return $this->hasMany(Reviews::class);
+        return $this->hasMany(Reviews::class, 'client_id');
     }
     public function reviewsReceived(){
         return $this->hasMany(Reviews::class,'artisan_id');
     }
-}
 
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
+}
 

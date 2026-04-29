@@ -53,6 +53,51 @@ class PostController extends Controller
         return redirect()->route('artisan.dashboard')->with('success', 'Your craft has been listed successfully!');
     }
 
+    public function edit(Post $post)
+    {
+        $user = auth()->user();
+        if (!$user->artisan || $post->artisan_id !== $user->artisan->id) {
+            abort(403, 'Unauthorized');
+        }
+
+        return view('posts.edit', compact('post'));
+    }
+
+    public function update(Request $request, Post $post)
+    {
+        $user = auth()->user();
+        if (!$user->artisan || $post->artisan_id !== $user->artisan->id) {
+            abort(403, 'Unauthorized');
+        }
+
+        $data = $request->validate([
+            'title'       => 'required|string|max:255',
+            'description' => 'required|string',
+            'images'      => 'nullable|array',
+            'images.*'    => 'image|mimes:jpeg,png,jpg,gif|max:5120',
+            'category'    => 'required|string',
+            'tags'        => 'nullable|string',
+        ]);
+
+        $this->postService->updatePost($post, $data);
+
+        return redirect()->route('artisan.dashboard')->with('success', 'Your craft listing has been updated!');
+    }
+
+    public function destroy(Post $post)
+    {
+        $user = auth()->user();
+
+        // Only the owning artisan can delete their post
+        if (!$user->artisan || $post->artisan_id !== $user->artisan->id) {
+            abort(403, 'Unauthorized');
+        }
+
+        $post->delete();
+
+        return redirect()->route('artisan.dashboard')->with('success', 'Listing deleted successfully.');
+    }
+
     public function toggleLike(Post $post)
     {
         $user = auth()->user();

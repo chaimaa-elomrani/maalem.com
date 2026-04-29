@@ -33,6 +33,12 @@ class PostRepository
         return Post::create($data);
     }
 
+    public function update(Post $post, array $data)
+    {
+        $post->update($data);
+        return $post;
+    }
+
     public function findByArtisan(int $artisanId)
     {
         return Post::where('artisan_id', $artisanId)->latest()->get();

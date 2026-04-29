@@ -17,6 +17,8 @@ class ClientController extends Controller
 
         if ($user->role === 'artisan') {
             return redirect()->route('artisan.dashboard');
+        } elseif ($user->role === 'mediateur') {
+            return redirect()->route('mediateur.dashboard');
         }
         
         // Fetch liked posts for the dashboard - mapped to "Saved Artisans" in the new layout
@@ -24,7 +26,9 @@ class ClientController extends Controller
             $query->where('user_id', $user->id);
         })->with(['artisan.user'])->latest()->limit(8)->get();
 
-        $deliveryRequests = $user->client->deliveryRequests()->with(['artisan.user', 'mediateur.user'])->latest()->get();
+        $deliveryRequests = $user->client 
+            ? $user->client->deliveryRequests()->with(['artisan.user', 'mediateur.user'])->latest()->get()
+            : collect();
 
         $placeholderImages = [
           'Artisan Woman Weaving Traditional Moroccan Baskets.jpeg',

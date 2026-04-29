@@ -10,10 +10,14 @@ class Mediateur extends Model
     protected $fillable = [
         'user_id',
         'zonesCouvertes',
+        'bio',
+        'vehicleType',
+        'disponibility',
     ];
 
     protected $casts = [
         'zonesCouvertes' => 'json',
+        'disponibility' => 'json',
     ];
 
     public function user(): BelongsTo

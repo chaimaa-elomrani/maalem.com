@@ -17,7 +17,7 @@ return new class extends Migration
             $table->integer('experience')->default(0);
             $table->json('certifications')->nullable();
             $table->string('workshopAdresse')->nullable();
-            $table->enum('status', ['active', 'inactive', 'suspended'])->default('active');
+            $table->enum('status', ['pending', 'approved', 'rejected', 'active', 'inactive', 'suspended'])->default('pending');
             $table->enum('access_type', ['contact_only', 'full_service'])->default('full_service');
             $table->float('noteMoyenne')->default(0);
             $table->timestamps();

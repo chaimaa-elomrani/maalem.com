@@ -51,11 +51,20 @@ class DeliveryController extends Controller
         }
 
         $availableRequests = DeliveryRequest::where('status', DeliveryRequest::STATUS_PENDING)->get();
-        $myDeliveries = DeliveryRequest::where('mediateur_id', $user->mediateur->id)
-            ->where('status', '!=', DeliveryRequest::STATUS_DELIVERED)
-            ->get();
-
-        return view('mediateur.dashboard', compact('availableRequests', 'myDeliveries'));
+        
+        if (!$user->mediateur) {
+            $myDeliveries = collect();
+            $completedCount = 0;
+        } else {
+            $myDeliveries = DeliveryRequest::where('mediateur_id', $user->mediateur->id)
+                ->where('status', '!=', DeliveryRequest::STATUS_DELIVERED)
+                ->get();
+            
+            $completedCount = DeliveryRequest::where('mediateur_id', $user->mediateur->id)
+                ->where('status', DeliveryRequest::STATUS_DELIVERED)
+                ->count();
+        }
+        return view('mediateur.dashboard', compact('availableRequests', 'myDeliveries', 'completedCount', 'user'));
     }
 
     /**
@@ -73,6 +82,14 @@ class DeliveryController extends Controller
             'mediateur_id' => Auth::user()->mediateur->id,
             'status' => DeliveryRequest::STATUS_ACCEPTED_BY_MEDIATOR,
         ]);
+
+        $notification = new \App\Notifications\DeliveryStatusUpdated($deliveryRequest->id, 'Accepted by Mediator');
+        if ($deliveryRequest->client && $deliveryRequest->client->user) {
+            $deliveryRequest->client->user->notify($notification);
+        }
+        if ($deliveryRequest->artisan && $deliveryRequest->artisan->user) {
+            $deliveryRequest->artisan->user->notify($notification);
+        }
 
         return back()->with('success', 'You have accepted the delivery request.');
     }
@@ -94,6 +111,11 @@ class DeliveryController extends Controller
             
             if (in_array($request->status, $allowedStatuses)) {
                 $deliveryRequest->update(['status' => $request->status]);
+                
+                $notification = new \App\Notifications\DeliveryStatusUpdated($deliveryRequest->id, $deliveryRequest->status_label);
+                if ($deliveryRequest->client && $deliveryRequest->client->user) $deliveryRequest->client->user->notify($notification);
+                if ($deliveryRequest->artisan && $deliveryRequest->artisan->user) $deliveryRequest->artisan->user->notify($notification);
+                
                 return back()->with('success', 'Status updated.');
             }
         }
@@ -106,6 +128,11 @@ class DeliveryController extends Controller
 
             if (in_array($request->status, $allowedStatuses)) {
                 $deliveryRequest->update(['status' => $request->status]);
+                
+                $notification = new \App\Notifications\DeliveryStatusUpdated($deliveryRequest->id, $deliveryRequest->status_label);
+                if ($deliveryRequest->client && $deliveryRequest->client->user) $deliveryRequest->client->user->notify($notification);
+                if ($deliveryRequest->mediateur && $deliveryRequest->mediateur->user) $deliveryRequest->mediateur->user->notify($notification);
+
                 return back()->with('success', 'Status updated.');
             }
         }

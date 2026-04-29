@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Repositories\PostRepository;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Post;
 
 class PostService
 {
@@ -42,5 +43,23 @@ class PostService
             'category'    => $data['category'],
             'tags'        => $tagsArray,
         ]);
+    }
+
+    public function updatePost(Post $post, array $data)
+    {
+        if (isset($data['images']) && is_array($data['images'])) {
+            $imagePaths = [];
+            foreach ($data['images'] as $file) {
+                $path = $file->store('posts', 'public');
+                $imagePaths[] = $path;
+            }
+            $data['images'] = $imagePaths;
+        }
+
+        if (isset($data['tags']) && is_string($data['tags'])) {
+            $data['tags'] = array_filter(array_map('trim', explode(',', $data['tags'])));
+        }
+
+        return $this->postRepository->update($post, $data);
     }
 }
